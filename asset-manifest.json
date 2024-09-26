@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/static/css/main.93cf7b1e.css",
-    "main.js": "/static/js/main.4c5f4c85.js",
-    "static/media/Teamo.png": "/static/media/Teamo.fd8a540e5c79fb9bcb77.png",
-    "static/media/Final Gatutu.png": "/static/media/Final Gatutu.0c6f452845921ef5ad50.png",
-    "static/media/esposos.jpg": "/static/media/esposos.654c8578129db38b019b.jpg",
-    "static/media/openart-image__thsW9rX_1720141162064_raw.jpg": "/static/media/openart-image__thsW9rX_1720141162064_raw.70d4bd18e07987ff21b2.jpg",
-    "static/media/ot.png": "/static/media/ot.b00d1d1ae38c7f39b79e.png",
-    "static/media/Imagen de WhatsApp 2024-09-03 a las 18.19.37_897ed21a.jpg": "/static/media/Imagen de WhatsApp 2024-09-03 a las 18.19.37_897ed21a.7bbc4331a6d0a069d83e.jpg",
-    "static/media/cora.png": "/static/media/cora.a2be17e052ea8f8d1a27.png",
-    "static/media/adeacc67-a4e4-48a4-8bc3-a2f508d1849c.jpeg": "/static/media/adeacc67-a4e4-48a4-8bc3-a2f508d1849c.27668a64f09fceb01eeb.jpeg",
-    "index.html": "/index.html",
-    "main.93cf7b1e.css.map": "/static/css/main.93cf7b1e.css.map",
-    "main.4c5f4c85.js.map": "/static/js/main.4c5f4c85.js.map"
+    "main.css": "/pagina-romantica/static/css/main.fe47f3ba.css",
+    "main.js": "/pagina-romantica/static/js/main.9c3f79ca.js",
+    "static/media/Teamo.png": "/pagina-romantica/static/media/Teamo.fd8a540e5c79fb9bcb77.png",
+    "static/media/Final Gatutu.png": "/pagina-romantica/static/media/Final Gatutu.0c6f452845921ef5ad50.png",
+    "static/media/esposos.jpg": "/pagina-romantica/static/media/esposos.654c8578129db38b019b.jpg",
+    "static/media/openart-image__thsW9rX_1720141162064_raw.jpg": "/pagina-romantica/static/media/openart-image__thsW9rX_1720141162064_raw.70d4bd18e07987ff21b2.jpg",
+    "static/media/ot.png": "/pagina-romantica/static/media/ot.b00d1d1ae38c7f39b79e.png",
+    "static/media/Imagen de WhatsApp 2024-09-03 a las 18.19.37_897ed21a.jpg": "/pagina-romantica/static/media/Imagen de WhatsApp 2024-09-03 a las 18.19.37_897ed21a.7bbc4331a6d0a069d83e.jpg",
+    "static/media/cora.png": "/pagina-romantica/static/media/cora.a2be17e052ea8f8d1a27.png",
+    "static/media/adeacc67-a4e4-48a4-8bc3-a2f508d1849c.jpeg": "/pagina-romantica/static/media/adeacc67-a4e4-48a4-8bc3-a2f508d1849c.27668a64f09fceb01eeb.jpeg",
+    "index.html": "/pagina-romantica/index.html",
+    "main.fe47f3ba.css.map": "/pagina-romantica/static/css/main.fe47f3ba.css.map",
+    "main.9c3f79ca.js.map": "/pagina-romantica/static/js/main.9c3f79ca.js.map"
   },
   "entrypoints": [
-    "static/css/main.93cf7b1e.css",
-    "static/js/main.4c5f4c85.js"
+    "static/css/main.fe47f3ba.css",
+    "static/js/main.9c3f79ca.js"
   ]
 }
