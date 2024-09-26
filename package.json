@@ -1,7 +1,7 @@
 {
   "name": "pagina-romantica",
   "version": "0.1.0",
-  "home": "https://diamondstalker.github.io/pagina-romantica/",
+  "homepage": "https://diamondstalker.github.io/pagina-romantica/",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",

@@ -157,7 +157,7 @@ function App() {
       </section>
 
       <footer className="footer" style={{ fontFamily: "Edu AU VIC WA NT Dots, cursive" }}>
-        <p>Para siempre, con amor ❤️</p>
+        <p>Para siempre, con amor ❤️ Pingui</p>
       </footer>
     </div>
   );
