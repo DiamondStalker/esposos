@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
+import cancion from './cancion.mp3';
 
 function App() {
   const [monthsTogether, setMonthsTogether] = useState(0);
   const [showPopup, setShowPopup] = useState(true);
   const audioRef = useRef(null);
   const progressRef = useRef(null);
-  const intervalRef = useRef(null); // Usar un ref para el intervalo
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     const updateMonths = () => {
@@ -35,7 +36,7 @@ function App() {
 
     return () => {
       clearTimeout(timeout);
-      clearInterval(intervalRef.current); // Limpiar el intervalo
+      clearInterval(intervalRef.current);
     };
   }, []);
 
@@ -72,25 +73,23 @@ function App() {
       const newHeart = document.createElement('div');
       newHeart.className = 'heart';
 
-      // Agregar un desplazamiento aleatorio para mayor dispersión
-      const offsetX = (Math.random() - 0.5) * 50; // Desplazamiento horizontal aleatorio
-      const offsetY = (Math.random() - 0.5) * 50; // Desplazamiento vertical aleatorio
+      const offsetX = (Math.random() - 0.5) * 50;
+      const offsetY = (Math.random() - 0.5) * 50;
 
-      newHeart.style.left = `${e.pageX + offsetX}px`; // Posición en X con desplazamiento
-      newHeart.style.top = `${e.pageY + offsetY}px`; // Posición en Y con desplazamiento
+      newHeart.style.left = `${e.pageX + offsetX}px`;
+      newHeart.style.top = `${e.pageY + offsetY}px`;
 
       document.body.appendChild(newHeart);
 
-      // Muestra el corazón y anima su desaparición
       newHeart.style.opacity = 1;
-      newHeart.style.transform = 'scale(1.5)'; // Aumenta el tamaño del corazón
+      newHeart.style.transform = 'scale(1.5)';
       setTimeout(() => {
-        newHeart.style.opacity = 0; // Desvanece el corazón
-        newHeart.style.transform = 'scale(1)'; // Vuelve al tamaño original
+        newHeart.style.opacity = 0;
+        newHeart.style.transform = 'scale(1)';
         setTimeout(() => {
-          newHeart.remove(); // Elimina el corazón del DOM después de que se desvanece
-        }, 400); // Tiempo que tarda en desaparecer
-      }, 200); // Tiempo que se muestra el corazón
+          newHeart.remove();
+        }, 400);
+      }, 200);
     };
 
     window.addEventListener('mousemove', createHeart);
@@ -119,7 +118,7 @@ function App() {
 
       <div className="audio-bar">
         <audio ref={audioRef} loop onTimeUpdate={updateProgress}>
-          <source src="/LIM KIM - Confess To You (OST KING THE LAND).mp3" type="audio/mpeg" />
+          <source src={cancion} type="audio/mpeg" />
           Tu navegador no soporta el elemento de audio.
         </audio>
 
@@ -133,7 +132,7 @@ function App() {
         </div>
       </div>
 
-      <header className="header" >
+      <header className="header">
         <center>
           <h1 style={{ fontFamily: "Miss Fajardose, cursive" }}>¡Feliz {monthsTogether} Meses, Mi Amor!</h1>
         </center>
@@ -141,12 +140,9 @@ function App() {
       </header>
 
       <section className="content">
-
-
         <div id="carouselExample" className="carousel slide">
           <div className="carousel-inner">
             <Fotos />
-
           </div>
         </div>
 
