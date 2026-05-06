@@ -5,7 +5,8 @@ body {
   background-color: #ffe4e1; /* Color rosa claro */
   color: #800000; /* Color vino */
   text-align: center;
-  cursor: url('./assets/cora.png'),auto;
+  cursor: url('./assets/dino_cursor.png') 16 16, auto;
+  /* 16 16 = hotspot centrado en la imagen de 32x32px */
 }
 
 .app-container {
@@ -69,47 +70,18 @@ iframe {
   border: none;
 }
 
-.popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  padding: 20px;
-  z-index: 1000; /* Asegúrate de que el popup esté por encima de otros elementos */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.popup h2 {
-  margin: 0 0 10px 0;
-}
-
-.popup button {
-  background-color: #dc0a2d; /* Cambia esto al color que prefieras */
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.popup button:hover {
-  background-color: #b0082c; /* Color de hover */
-}
-
-
+/* ── Overlay ── */
 .overlay {
-  position: fixed; /* Fija la posición para que cubra toda la pantalla */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.9); /* Color negro con opacidad */
-  z-index: 900; /* Asegúrate de que esté por detrás del popup */
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 900; /* Por detrás del popup */
 }
 
+/* ── Popup ── */
 .popup {
   position: fixed;
   top: 50%;
@@ -119,7 +91,7 @@ iframe {
   border: 2px solid #ccc;
   border-radius: 10px;
   padding: 20px;
-  z-index: 1000; /* Asegúrate de que el popup esté por encima del overlay */
+  z-index: 1000;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -128,7 +100,7 @@ iframe {
 }
 
 .popup button {
-  background-color: #dc0a2d; /* Cambia esto al color que prefieras */
+  background-color: #dc0a2d;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -137,116 +109,121 @@ iframe {
 }
 
 .popup button:hover {
-  background-color: #b0082c; /* Color de hover */
+  background-color: #b0082c;
 }
 
+/* ── Audio bar ── */
 .audio-bar {
-  position: fixed; /* Fija la posición en la parte superior */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  background-color: #00000041; /* Color de fondo de la barra */
-  padding: 10px; /* Espaciado interno */
+  background: linear-gradient(to right, #ff6a88, #ffb199);
+  padding: 5px 20px;
   display: flex;
-  justify-content: center; /* Centra el reproductor de audio */
-  z-index: 1000; /* Asegúrate de que esté encima de otros elementos */
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 
 .audio-bar audio {
-  width: 80%; /* Ancho del reproductor de audio */
-  outline: none; /* Elimina el contorno del reproductor */
-  border-radius: 5px; /* Bordes redondeados */
-}
-
-.audio-bar {
-  position: fixed; /* Fija la posición en la parte superior */
-  top: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to right, #ff6a88, #ffb199); /* Degradado romántico */
-  padding: 5px 20px; /* Espaciado interno reducido */
-  display: flex;
-  align-items: center; /* Centra verticalmente los elementos */
-  border-radius: 10px; /* Bordes redondeados */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra sutil */
-  z-index: 1000; /* Asegúrate de que esté encima de otros elementos */
-}
-
-.audio-bar audio {
-  display: none; /* Oculta el reproductor de audio nativo */
+  display: none; /* Oculta el reproductor nativo */
 }
 
 .custom-controls {
-  flex-grow: 1; /* Permite que los controles crezcan */
+  flex-grow: 1;
   display: flex;
-  align-items: center; /* Centra verticalmente los controles */
-  justify-content: center; /* Centra los controles horizontalmente */
+  align-items: center;
+  justify-content: center;
 }
 
 .custom-button {
-  background: none; /* Fondo transparente */
-  border: none; /* Sin bordes */
-  color: white; /* Color del texto */
-  font-size: 20px; /* Tamaño del texto */
-  cursor: pointer; /* Cambia el cursor al pasar el mouse */
-  margin: 0 10px; /* Espaciado entre botones */
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 0 10px;
 }
 
 .custom-button:hover {
-  transform: scale(1.1); /* Efecto al pasar el mouse */
+  transform: scale(1.1);
 }
 
 .custom-button:focus {
-  outline: none; /* Elimina el contorno del botón al hacer clic */
+  outline: none;
 }
 
-/* Barra de Progreso */
+/* ── Barra de Progreso ── */
 .progress-container {
-  flex-grow: 1; /* Hace que ocupe el espacio restante */
-  height: 5px; /* Altura de la barra de progreso */
-  background-color: rgba(255, 255, 255, 0.3); /* Fondo claro con transparencia */
-  border-radius: 5px; /* Bordes redondeados */
-  position: relative; /* Posiciona elementos hijos */
-  margin: 0 10px; /* Espaciado horizontal */
+  flex-grow: 1;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  position: relative;
+  margin: 0 10px;
 }
 
 .progress {
-  height: 100%; /* Altura completa de la barra de progreso */
-  background-color: #ff4e50; /* Color de la barra de progreso */
-  border-radius: 5px; /* Bordes redondeados */
-  width: 0%; /* Inicia con 0% */
-  transition: width 0.5s; /* Transición suave */
+  height: 100%;
+  background-color: #ff4e50;
+  border-radius: 5px;
+  width: 0%;
+  transition: width 0.5s;
 }
 
-
+/* ── Carrusel ── */
 .carousel-image-container {
-  width: 100%;       /* O el ancho deseado */
-  height: 400px;    /* Altura fija para todas las imágenes */
-  overflow: hidden; /* Oculta cualquier parte de la imagen que sobresalga */
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
   display: flex;
-  align-items: center; /* Centra verticalmente la imagen */
-  justify-content: center; /* Centra horizontalmente la imagen */
+  align-items: center;
+  justify-content: center;
 }
 
 .carousel-image {
-  width: 100%; 
-  height: auto; 
-  object-fit: cover; 
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
 h4 {
-  text-align: center; /* Centra el texto del título */
-  margin-bottom: 20px; /* Espacio debajo del título, opcional */
+  text-align: center;
+  margin-bottom: 8px;
 }
 
+/* ── Typewriter ── */
+.typewriter-text {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 2rem;
+  color: #c0396b;
+  margin: 0 0 16px 0;
+  min-height: 2.5rem;
+  text-align: center;
+}
 
+.typewriter-cursor {
+  display: inline-block;
+  animation: blink 0.7s step-end infinite;
+  color: #c0396b;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Corazones del cursor ── */
 .heart {
   position: absolute;
-  width: 20px; /* Ancho del corazón */
-  height: 20px; /* Alto del corazón */
-  background-image: url('./assets/ot.png'); /* Asegúrate de tener un icono de corazón */
-  background-size: cover; /* Para que la imagen cubra todo el div */
-  pointer-events: none; /* Evita que el div interfiere con los eventos del mouse */
-  opacity: 0; /* Comienza como invisible */
-  transition: opacity 0.2s, transform 0.2s; /* Para suavizar la aparición y desaparición */
+  width: 20px;
+  height: 20px;
+  background-image: url('./assets/ot.png');
+  background-size: cover;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
 }
