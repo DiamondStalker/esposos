@@ -30,10 +30,10 @@ function Typewriter({ text, speed = 100, deleteSpeed = 60, pauseAfter = 1500 }) 
   }, [index, displayed, deleting, text, speed, deleteSpeed, pauseAfter]);
 
   return (
-    <h3 className="typewriter-text">
+    <h2 className="typewriter-text">
       {displayed}
       <span className="typewriter-cursor">|</span>
-    </h3>
+    </h2>
   );
 }
 
@@ -48,13 +48,12 @@ export default function Fotos() {
   return (
     <div>
       <h4>{config.textos.tituloCarrusel}</h4>
-      <Typewriter text={config.nombres.etiqueta} speed={120} deleteSpeed={60} pauseAfter={1500} />
 
-      {/* Wrapper externo que contiene botones + marco */}
       <div className="carousel-outer">
         <button className="carousel-btn carousel-btn-prev" onClick={handlePrev}>‹</button>
 
         <div className="carousel-wrapper">
+          {/* Foto detrás del marco */}
           <div className="carousel-inner-wrapper">
             <Carousel
               activeIndex={activeIndex}
@@ -75,7 +74,14 @@ export default function Fotos() {
               ))}
             </Carousel>
           </div>
+
+          {/* Marco encima */}
           <img src={marco} alt="marco" className="carousel-marco" />
+
+          {/* Typewriter en la zona blanca inferior del Polaroid */}
+          <div className="polaroid-text-area">
+            <Typewriter text={config.nombres.etiqueta} speed={120} deleteSpeed={60} pauseAfter={1500} />
+          </div>
         </div>
 
         <button className="carousel-btn carousel-btn-next" onClick={handleNext}>›</button>

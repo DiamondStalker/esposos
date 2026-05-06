@@ -146,7 +146,7 @@ iframe { border: none; }
   transition: width 0.5s;
 }
 
-/* ── Wrapper externo: botones a los lados del marco ── */
+/* ── Wrapper externo ── */
 .carousel-outer {
   display: flex;
   flex-direction: row;
@@ -206,6 +206,40 @@ iframe { border: none; }
   object-position: center top;
 }
 
+/* ── Texto en zona blanca inferior del Polaroid ── */
+.polaroid-text-area {
+  position: absolute;
+  bottom: 6%;
+  left: 10%;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+}
+
+/* ── Typewriter h2 ── */
+.typewriter-text {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 3.8rem;
+  font-weight: normal;
+  color: #c0396b;
+  margin: 0;
+  text-align: center;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  animation: blink 0.7s step-end infinite;
+  color: #c0396b;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 /* ── Botones fuera del marco ── */
 .carousel-btn {
   background: rgba(255, 255, 255, 0.9);
@@ -241,29 +275,6 @@ iframe { border: none; }
 h4 {
   text-align: center;
   margin-bottom: 8px;
-}
-
-/* ── Typewriter h3 ── */
-.typewriter-text {
-  font-family: 'Miss Fajardose', cursive;
-  font-size: 2rem;
-  font-weight: normal;
-  color: #c0396b;
-  margin: 0 0 16px 0;
-  min-height: 2.5rem;
-  text-align: center;
-}
-
-.typewriter-cursor {
-  display: inline-block;
-  animation: blink 0.7s step-end infinite;
-  color: #c0396b;
-  font-weight: bold;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
 }
 
 /* ── Corazones del cursor ── */
