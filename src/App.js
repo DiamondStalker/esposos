@@ -8,15 +8,14 @@ function App() {
   const [monthsTogether, setMonthsTogether] = useState(0);
   const [daysUntilNext, setDaysUntilNext] = useState(0);
   const [showPopup, setShowPopup] = useState(true);
-  const [userAccepted, setUserAccepted] = useState(false);
   const [fraseDelDia, setFraseDelDia] = useState('');
   const [poemaDelDia] = useState(() => {
-    // Se selecciona una sola vez al montar el componente
     const randomIndex = Math.floor(Math.random() * frases.poemas.length);
     return frases.poemas[randomIndex];
   });
   const intervalRef = useRef(null);
   const controllerRef = useRef(null);
+  const userAcceptedRef = useRef(false); // ref en vez de state para evitar el warning de ESLint
 
   useEffect(() => {
     const updateMonths = () => {
@@ -77,7 +76,7 @@ function App() {
       IFrameAPI.createController(element, options, (EmbedController) => {
         controllerRef.current = EmbedController;
         EmbedController.addListener('ready', () => {
-          if (userAccepted) {
+          if (userAcceptedRef.current) {
             EmbedController.play();
           }
         });
@@ -87,11 +86,11 @@ function App() {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePopupAccept = () => {
     setShowPopup(false);
-    setUserAccepted(true);
+    userAcceptedRef.current = true;
     if (controllerRef.current) {
       controllerRef.current.play();
     }
@@ -153,7 +152,6 @@ function App() {
         <main className="col-center">
           <section className="content">
             <Fotos />
-            {/* Poema aleatorio — edita src/data/frases.json para cambiarlo */}
             <p className="message">
               {poemaDelDia.split('\n').map((linea, i) => (
                 <span key={i}>{linea}<br /></span>
