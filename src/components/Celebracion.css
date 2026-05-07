@@ -1,0 +1,59 @@
+/* ── Contenedor de la celebración ── */
+.celebracion-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+}
+
+/* ── Confetti ── */
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  opacity: 1;
+  animation: caerConfetti linear forwards;
+}
+
+@keyframes caerConfetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ── Globos ── */
+.globo {
+  position: absolute;
+  bottom: -80px;
+  animation: subirGlobo ease-in forwards;
+  user-select: none;
+}
+
+@keyframes subirGlobo {
+  0% {
+    transform: translateY(0) rotate(-5deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50vh) rotate(5deg);
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-110vh) rotate(-3deg);
+    opacity: 0;
+  }
+}
