@@ -2,14 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
-import cancion from './cancion.mp3';
+import frases from './data/frases.json';
 
 function App() {
   const [monthsTogether, setMonthsTogether] = useState(0);
+  const [daysUntilNext, setDaysUntilNext] = useState(0);
   const [showPopup, setShowPopup] = useState(true);
-  const audioRef = useRef(null);
-  const progressRef = useRef(null);
+  const [userAccepted, setUserAccepted] = useState(false);
+  const [fraseDelDia, setFraseDelDia] = useState('');
+  const [poemaDelDia] = useState(() => {
+    // Se selecciona una sola vez al montar el componente
+    const randomIndex = Math.floor(Math.random() * frases.poemas.length);
+    return frases.poemas[randomIndex];
+  });
   const intervalRef = useRef(null);
+  const controllerRef = useRef(null);
 
   useEffect(() => {
     const updateMonths = () => {
@@ -20,6 +27,20 @@ function App() {
       const dayDiff = now.getDate() >= startDate.getDate() ? 0 : -1;
       const totalMonths = yearDiff * 12 + monthDiff + dayDiff;
       setMonthsTogether(totalMonths);
+
+      const today = new Date();
+      let nextAnniversary = new Date(today.getFullYear(), today.getMonth(), 26);
+      if (today.getDate() >= 26) {
+        nextAnniversary = new Date(today.getFullYear(), today.getMonth() + 1, 26);
+      }
+      const diffTime = nextAnniversary - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      setDaysUntilNext(diffDays);
+
+      if (today.getDate() === 26) {
+        const randomIndex = Math.floor(Math.random() * frases.frases26.length);
+        setFraseDelDia(frases.frases26[randomIndex]);
+      }
     };
 
     updateMonths();
@@ -40,31 +61,39 @@ function App() {
     };
   }, []);
 
-  const playAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.5;
-      audioRef.current.play().catch(error => {
-        console.log("Autoplay bloqueado por el navegador. Interacción requerida.", error);
-      });
-    }
-  };
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://open.spotify.com/embed/iframe-api/v1';
+    script.async = true;
+    document.body.appendChild(script);
 
-  const pauseAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  };
+    window.onSpotifyIframeApiReady = (IFrameAPI) => {
+      const options = {
+        uri: 'spotify:playlist:0rHcsnXMIQjMNPzUmQfK2Z',
+        width: '100%',
+        height: '352',
+      };
+      const element = document.getElementById('spotify-embed-container');
+      IFrameAPI.createController(element, options, (EmbedController) => {
+        controllerRef.current = EmbedController;
+        EmbedController.addListener('ready', () => {
+          if (userAccepted) {
+            EmbedController.play();
+          }
+        });
+      });
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const handlePopupAccept = () => {
     setShowPopup(false);
-    playAudio();
-  };
-
-  const updateProgress = () => {
-    if (audioRef.current && progressRef.current) {
-      const { duration, currentTime } = audioRef.current;
-      const progressPercentage = (currentTime / duration) * 100;
-      progressRef.current.style.width = `${progressPercentage}%`;
+    setUserAccepted(true);
+    if (controllerRef.current) {
+      controllerRef.current.play();
     }
   };
 
@@ -72,31 +101,21 @@ function App() {
     const createHeart = (e) => {
       const newHeart = document.createElement('div');
       newHeart.className = 'heart';
-
       const offsetX = (Math.random() - 0.5) * 50;
       const offsetY = (Math.random() - 0.5) * 50;
-
       newHeart.style.left = `${e.pageX + offsetX}px`;
       newHeart.style.top = `${e.pageY + offsetY}px`;
-
       document.body.appendChild(newHeart);
-
       newHeart.style.opacity = 1;
       newHeart.style.transform = 'scale(1.5)';
       setTimeout(() => {
         newHeart.style.opacity = 0;
         newHeart.style.transform = 'scale(1)';
-        setTimeout(() => {
-          newHeart.remove();
-        }, 400);
+        setTimeout(() => newHeart.remove(), 400);
       }, 200);
     };
-
     window.addEventListener('mousemove', createHeart);
-
-    return () => {
-      window.removeEventListener('mousemove', createHeart);
-    };
+    return () => window.removeEventListener('mousemove', createHeart);
   }, []);
 
   return (
@@ -107,50 +126,49 @@ function App() {
           <div className="overlay" />
           <div className="popup">
             <h2>¡Bienvenido!</h2>
-            <p>
-              Estás a punto de celebrar {monthsTogether} meses juntos.
-              Haz clic en aceptar para escuchar una canción especial.
-            </p>
+            <p>Estás celebrando <strong>{monthsTogether} meses</strong> juntos.</p>
+            {daysUntilNext === 0
+              ? <p className="popup-countdown">🎉 {fraseDelDia}</p>
+              : <p className="popup-countdown">Faltan <strong>{daysUntilNext} días</strong> para el próximo mes ❤️</p>
+            }
             <button onClick={handlePopupAccept}>Aceptar</button>
           </div>
         </>
       )}
 
-      <div className="audio-bar">
-        <audio ref={audioRef} loop onTimeUpdate={updateProgress}>
-          <source src={cancion} type="audio/mpeg" />
-          Tu navegador no soporta el elemento de audio.
-        </audio>
-
-        <div className="custom-controls">
-          <button className="custom-button" onClick={playAudio}>▶️</button>
-          <button className="custom-button" onClick={pauseAudio}>⏸️</button>
-        </div>
-
-        <div className="progress-container">
-          <div className="progress" ref={progressRef}></div>
-        </div>
-      </div>
-
       <header className="header">
-        <center>
-          <h1 style={{ fontFamily: "Miss Fajardose, cursive" }}>¡Feliz {monthsTogether} Meses, Mi Amor!</h1>
-        </center>
+        <h1 style={{ fontFamily: "Miss Fajardose, cursive" }}>¡Feliz {monthsTogether} Meses, Mi Amor!</h1>
         <p>Gracias por hacerme la persona más feliz del mundo.</p>
       </header>
 
-      <section className="content">
-        <div id="carouselExample" className="carousel slide">
-          <div className="carousel-inner">
-            <Fotos />
-          </div>
-        </div>
+      <div className="layout">
 
-        <p className="message">
-          Cada día contigo es una nueva aventura llena de amor y alegría. <br />
-          ¡Te amo más de lo que las palabras pueden expresar!
-        </p>
-      </section>
+        <aside className="col-left">
+          <div className="widget-spotify">
+            <h3 className="widget-title">🎵 Nuestra Música</h3>
+            <div id="spotify-embed-container" style={{ borderRadius: '12px', overflow: 'hidden' }} />
+          </div>
+        </aside>
+
+        <main className="col-center">
+          <section className="content">
+            <Fotos />
+            {/* Poema aleatorio — edita src/data/frases.json para cambiarlo */}
+            <p className="message">
+              {poemaDelDia.split('\n').map((linea, i) => (
+                <span key={i}>{linea}<br /></span>
+              ))}
+            </p>
+          </section>
+        </main>
+
+        <aside className="col-right">
+          <div className="widget-placeholder">
+            <span>✨ Próximamente</span>
+          </div>
+        </aside>
+
+      </div>
 
       <footer className="footer" style={{ fontFamily: "Edu AU VIC WA NT Dots, cursive" }}>
         <p>Para siempre, con amor ❤️ Pingui</p>
