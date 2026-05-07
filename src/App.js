@@ -2,20 +2,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
-import frases from './data/frases.json';
+import Celebracion from './components/Celebracion';
+import data from './data/mesesaurios.json';
 
 function App() {
   const [monthsTogether, setMonthsTogether] = useState(0);
   const [daysUntilNext, setDaysUntilNext] = useState(0);
   const [showPopup, setShowPopup] = useState(true);
+  const [esDia26, setEsDia26] = useState(false);
+  const [celebracionActiva, setCelebracionActiva] = useState(false);
   const [fraseDelDia, setFraseDelDia] = useState('');
   const [poemaDelDia] = useState(() => {
-    const randomIndex = Math.floor(Math.random() * frases.poemas.length);
-    return frases.poemas[randomIndex];
+    const randomIndex = Math.floor(Math.random() * data.poemas.length);
+    return data.poemas[randomIndex];
   });
   const intervalRef = useRef(null);
   const controllerRef = useRef(null);
-  const userAcceptedRef = useRef(false); // ref en vez de state para evitar el warning de ESLint
+  const userAcceptedRef = useRef(false);
 
   useEffect(() => {
     const updateMonths = () => {
@@ -37,8 +40,9 @@ function App() {
       setDaysUntilNext(diffDays);
 
       if (today.getDate() === 26) {
-        const randomIndex = Math.floor(Math.random() * frases.frases26.length);
-        setFraseDelDia(frases.frases26[randomIndex]);
+        setEsDia26(true);
+        const randomIndex = Math.floor(Math.random() * data.frases26.length);
+        setFraseDelDia(data.frases26[randomIndex]);
       }
     };
 
@@ -94,6 +98,10 @@ function App() {
     if (controllerRef.current) {
       controllerRef.current.play();
     }
+    if (esDia26) {
+      setCelebracionActiva(true);
+      setTimeout(() => setCelebracionActiva(false), 7000);
+    }
   };
 
   useEffect(() => {
@@ -119,6 +127,9 @@ function App() {
 
   return (
     <div className="app-container">
+
+      <Celebracion activa={celebracionActiva} />
+
       {showPopup && (
         <>
           <div className="heart" />
