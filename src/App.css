@@ -13,12 +13,13 @@ body {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 60px 20px 40px;
+  padding-top: 20px;
   box-sizing: border-box;
 }
 
 .header {
-  margin-bottom: 30px;
+  margin: 20px 0 16px;
+  text-align: center;
 }
 
 .header h1 {
@@ -31,8 +32,56 @@ body {
   margin-top: 10px;
 }
 
+.layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 2200px;
+  padding: 0 40px 40px;
+  box-sizing: border-box;
+  gap: 24px;
+}
+
+.col-left,
+.col-right {
+  flex: 0 0 25%;
+  min-width: 0;
+}
+
+.col-center {
+  flex: 0 0 50%;
+  min-width: 0;
+}
+
+.widget-spotify {
+  background-color: #fff7f7;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+}
+
+.widget-title {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 2.8rem;
+  font-weight: normal;
+  color: #c0396b;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.widget-placeholder {
+  background-color: #fff7f7;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 40px 20px;
+  text-align: center;
+  color: #c0396b;
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
 .content {
-  max-width: 600px;
   width: 100%;
   padding: 20px;
   border-radius: 15px;
@@ -42,20 +91,17 @@ body {
   box-sizing: border-box;
 }
 
-.romantic-img {
-  max-width: 100%;
-  border-radius: 15px;
-  margin-bottom: 20px;
-}
-
 .message {
   font-size: 1.2rem;
   line-height: 1.8;
+  margin-top: 16px;
+  text-align: center;
 }
 
 .footer {
-  margin-top: 40px;
+  margin-top: 20px;
   font-size: 1.2rem;
+  padding-bottom: 20px;
 }
 
 iframe { border: none; }
@@ -74,79 +120,51 @@ iframe { border: none; }
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  padding: 20px;
+  border: 2px solid #f0c0cc;
+  border-radius: 16px;
+  padding: 32px 40px;
   z-index: 1000;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  min-width: 320px;
 }
 
-.popup h2 { margin: 0 0 10px 0; }
+.popup h2 {
+  margin: 0 0 12px 0;
+  font-size: 2rem;
+  color: #800000;
+}
+
+.popup p {
+  font-size: 1.1rem;
+  color: #800000;
+  margin: 8px 0;
+}
+
+.popup-countdown {
+  font-size: 1.1rem;
+  color: #c0396b;
+  margin: 12px 0 20px !important;
+}
 
 .popup button {
   background-color: #dc0a2d;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.1s;
 }
 
-.popup button:hover { background-color: #b0082c; }
-
-/* ── Audio bar ── */
-.audio-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  background: linear-gradient(to right, #ff6a88, #ffb199);
-  padding: 5px 20px;
-  display: flex;
-  align-items: center;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+.popup button:hover {
+  background-color: #b0082c;
+  transform: scale(1.03);
 }
 
-.audio-bar audio { display: none; }
-
-.custom-controls {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.custom-button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  margin: 0 10px;
-}
-
-.custom-button:hover { transform: scale(1.1); }
-.custom-button:focus { outline: none; }
-
-/* ── Barra de Progreso ── */
-.progress-container {
-  flex-grow: 1;
-  height: 5px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 5px;
-  position: relative;
-  margin: 0 10px;
-}
-
-.progress {
-  height: 100%;
-  background-color: #ff4e50;
-  border-radius: 5px;
-  width: 0%;
-  transition: width 0.5s;
-}
-
-/* ── Wrapper externo ── */
+/* ── Wrapper externo carrusel ── */
 .carousel-outer {
   display: flex;
   flex-direction: row;
@@ -206,7 +224,6 @@ iframe { border: none; }
   object-position: center top;
 }
 
-/* ── Texto en zona blanca inferior del Polaroid ── */
 .polaroid-text-area {
   position: absolute;
   bottom: 6%;
@@ -218,7 +235,6 @@ iframe { border: none; }
   z-index: 11;
 }
 
-/* ── Typewriter h2 ── */
 .typewriter-text {
   font-family: 'Miss Fajardose', cursive;
   font-size: 3.8rem;
@@ -240,7 +256,6 @@ iframe { border: none; }
   50%       { opacity: 0; }
 }
 
-/* ── Botones fuera del marco ── */
 .carousel-btn {
   background: rgba(255, 255, 255, 0.9);
   border: none;
@@ -263,7 +278,6 @@ iframe { border: none; }
   transform: scale(1.1);
 }
 
-/* ── Contador ── */
 .carousel-counter {
   font-size: 0.85rem;
   color: #c0396b;
@@ -277,7 +291,6 @@ h4 {
   margin-bottom: 8px;
 }
 
-/* ── Corazones del cursor ── */
 .heart {
   position: absolute;
   width: 20px;
@@ -287,4 +300,22 @@ h4 {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s, transform 0.2s;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 40px;
+  }
+  .col-left,
+  .col-right,
+  .col-center {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+  .carousel-wrapper {
+    width: 100%;
+    max-width: 420px;
+  }
 }
