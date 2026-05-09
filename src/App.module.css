@@ -1,0 +1,174 @@
+/* ── App container ── */
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 20px;
+  box-sizing: border-box;
+}
+
+/* ── Header ── */
+.header {
+  margin: 20px 0 16px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.header p {
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+/* ── Layout 3 columnas ── */
+.layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 2200px;
+  padding: 0 40px 40px;
+  box-sizing: border-box;
+  gap: 24px;
+}
+
+.colLeft,
+.colRight {
+  flex: 0 0 25%;
+  min-width: 0;
+}
+
+.colCenter {
+  flex: 0 0 50%;
+  min-width: 0;
+}
+
+/* ── Widget Spotify ── */
+.widgetSpotify {
+  background-color: #fff7f7;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+}
+
+.widgetTitle {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 2.8rem;
+  font-weight: normal;
+  color: #c0396b;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.widgetPlaceholder {
+  background-color: #fff7f7;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 40px 20px;
+  text-align: center;
+  color: #c0396b;
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+/* ── Content ── */
+.content {
+  width: 100%;
+  padding: 20px;
+  border-radius: 15px;
+  background-color: #fff7f7;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.message {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-top: 16px;
+  text-align: center;
+}
+
+/* ── Footer ── */
+.footer {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  padding-bottom: 20px;
+}
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 900;
+}
+
+/* ── Popup ── */
+.popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 2px solid #f0c0cc;
+  border-radius: 16px;
+  padding: 32px 40px;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  min-width: 320px;
+}
+
+.popup h2 {
+  margin: 0 0 12px 0;
+  font-size: 2rem;
+  color: #800000;
+}
+
+.popup p {
+  font-size: 1.1rem;
+  color: #800000;
+  margin: 8px 0;
+}
+
+.popupCountdown {
+  font-size: 1.1rem;
+  color: #c0396b;
+  margin: 12px 0 20px;
+}
+
+.popup button {
+  background-color: #dc0a2d;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.popup button:hover {
+  background-color: #b0082c;
+  transform: scale(1.03);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 40px;
+  }
+  .colLeft,
+  .colRight,
+  .colCenter {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+}

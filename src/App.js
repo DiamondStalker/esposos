@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './App.css';
+import styles from './App.module.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
 import Celebracion from './components/Celebracion';
@@ -39,7 +39,7 @@ function App() {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       setDaysUntilNext(diffDays);
 
-      if (today.getDate() === 26) {
+      if (today.getDate() === 6) { // cambiar a 26 en producción
         setEsDia26(true);
         const randomIndex = Math.floor(Math.random() * data.frases26.length);
         setFraseDelDia(data.frases26[randomIndex]);
@@ -126,44 +126,44 @@ function App() {
   }, []);
 
   return (
-    <div className="app-container">
+    <div className={styles.appContainer}>
 
       <Celebracion activa={celebracionActiva} />
 
       {showPopup && (
         <>
           <div className="heart" />
-          <div className="overlay" />
-          <div className="popup">
+          <div className={styles.overlay} />
+          <div className={styles.popup}>
             <h2>¡Bienvenido!</h2>
             <p>Estás celebrando <strong>{monthsTogether} meses</strong> juntos.</p>
             {daysUntilNext === 0
-              ? <p className="popup-countdown">🎉 {fraseDelDia}</p>
-              : <p className="popup-countdown">Faltan <strong>{daysUntilNext} días</strong> para el próximo mes ❤️</p>
+              ? <p className={styles.popupCountdown}>🎉 {fraseDelDia}</p>
+              : <p className={styles.popupCountdown}>Faltan <strong>{daysUntilNext} días</strong> para el próximo mes ❤️</p>
             }
             <button onClick={handlePopupAccept}>Aceptar</button>
           </div>
         </>
       )}
 
-      <header className="header">
+      <header className={styles.header}>
         <h1 style={{ fontFamily: "Miss Fajardose, cursive" }}>¡Feliz {monthsTogether} Meses, Mi Amor!</h1>
         <p>Gracias por hacerme la persona más feliz del mundo.</p>
       </header>
 
-      <div className="layout">
+      <div className={styles.layout}>
 
-        <aside className="col-left">
-          <div className="widget-spotify">
-            <h3 className="widget-title">🎵 Nuestra Música</h3>
+        <aside className={styles.colLeft}>
+          <div className={styles.widgetSpotify}>
+            <h3 className={styles.widgetTitle}>🎵 Nuestra Música</h3>
             <div id="spotify-embed-container" style={{ borderRadius: '12px', overflow: 'hidden' }} />
           </div>
         </aside>
 
-        <main className="col-center">
-          <section className="content">
+        <main className={styles.colCenter}>
+          <section className={styles.content}>
             <Fotos />
-            <p className="message">
+            <p className={styles.message}>
               {poemaDelDia.split('\n').map((linea, i) => (
                 <span key={i}>{linea}<br /></span>
               ))}
@@ -171,15 +171,15 @@ function App() {
           </section>
         </main>
 
-        <aside className="col-right">
-          <div className="widget-placeholder">
+        <aside className={styles.colRight}>
+          <div className={styles.widgetPlaceholder}>
             <span>✨ Próximamente</span>
           </div>
         </aside>
 
       </div>
 
-      <footer className="footer" style={{ fontFamily: "Edu AU VIC WA NT Dots, cursive" }}>
+      <footer className={styles.footer} style={{ fontFamily: "Edu AU VIC WA NT Dots, cursive" }}>
         <p>Para siempre, con amor ❤️ Pingui</p>
       </footer>
     </div>

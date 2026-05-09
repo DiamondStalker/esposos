@@ -1,0 +1,131 @@
+/* ── Wrapper externo carrusel ── */
+.carouselOuter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+/* ── Carrusel con marco Polaroid ── */
+.carouselWrapper {
+  position: relative;
+  width: 420px;
+  height: 550px;
+  flex-shrink: 0;
+}
+
+.carouselMarco {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.carouselInnerWrapper {
+  position: absolute;
+  top: 0%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.carouselInnerWrapper :global(.carousel),
+.carouselInnerWrapper :global(.carousel-inner),
+.carouselInnerWrapper :global(.carousel-item) {
+  height: 100%;
+}
+
+.carouselImageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.carouselImage {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* ── Texto Polaroid ── */
+.polaroidTextArea {
+  position: absolute;
+  bottom: 6%;
+  left: 10%;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+}
+
+.typewriterText {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 3.8rem;
+  font-weight: normal;
+  color: #c0396b;
+  margin: 0;
+  text-align: center;
+}
+
+.typewriterCursor {
+  display: inline-block;
+  animation: blink 0.7s step-end infinite;
+  color: #c0396b;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Botones carrusel ── */
+.carouselBtn {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 26px;
+  color: #c0396b;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.carouselBtn:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.carouselCounter {
+  font-size: 0.85rem;
+  color: #c0396b;
+  margin: 8px auto 0;
+  opacity: 0.7;
+  text-align: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .carouselWrapper {
+    width: 100%;
+    max-width: 420px;
+  }
+}
