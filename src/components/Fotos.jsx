@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import Carousel from 'react-bootstrap/Carousel';
+import styles from './Fotos.module.css';
 import config from '../config';
 import marco from '../assets/marco.png';
 
@@ -30,9 +31,9 @@ function Typewriter({ text, speed = 100, deleteSpeed = 60, pauseAfter = 1500 }) 
   }, [index, displayed, deleting, text, speed, deleteSpeed, pauseAfter]);
 
   return (
-    <h2 className="typewriter-text">
+    <h2 className={styles.typewriterText}>
       {displayed}
-      <span className="typewriter-cursor">|</span>
+      <span className={styles.typewriterCursor}>|</span>
     </h2>
   );
 }
@@ -49,12 +50,11 @@ export default function Fotos() {
     <div>
       <h4>{config.textos.tituloCarrusel}</h4>
 
-      <div className="carousel-outer">
-        <button className="carousel-btn carousel-btn-prev" onClick={handlePrev}>‹</button>
+      <div className={styles.carouselOuter}>
+        <button className={styles.carouselBtn} onClick={handlePrev}>‹</button>
 
-        <div className="carousel-wrapper">
-          {/* Foto detrás del marco */}
-          <div className="carousel-inner-wrapper">
+        <div className={styles.carouselWrapper}>
+          <div className={styles.carouselInnerWrapper}>
             <Carousel
               activeIndex={activeIndex}
               onSelect={setActiveIndex}
@@ -63,11 +63,11 @@ export default function Fotos() {
             >
               {images.map((img, idx) => (
                 <Carousel.Item key={idx}>
-                  <div className="carousel-image-container">
+                  <div className={styles.carouselImageContainer}>
                     <img
                       src={img}
                       alt={`Aventura ${idx + 1}`}
-                      className="carousel-image"
+                      className={styles.carouselImage}
                     />
                   </div>
                 </Carousel.Item>
@@ -75,19 +75,17 @@ export default function Fotos() {
             </Carousel>
           </div>
 
-          {/* Marco encima */}
-          <img src={marco} alt="marco" className="carousel-marco" />
+          <img src={marco} alt="marco" className={styles.carouselMarco} />
 
-          {/* Typewriter en la zona blanca inferior del Polaroid */}
-          <div className="polaroid-text-area">
+          <div className={styles.polaroidTextArea}>
             <Typewriter text={config.nombres.etiqueta} speed={120} deleteSpeed={60} pauseAfter={1500} />
           </div>
         </div>
 
-        <button className="carousel-btn carousel-btn-next" onClick={handleNext}>›</button>
+        <button className={styles.carouselBtn} onClick={handleNext}>›</button>
       </div>
 
-      <p className="carousel-counter">{activeIndex + 1} / {images.length}</p>
+      <p className={styles.carouselCounter}>{activeIndex + 1} / {images.length}</p>
     </div>
   );
 }
