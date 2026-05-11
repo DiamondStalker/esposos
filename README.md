@@ -1,70 +1,106 @@
-# Getting Started with Create React App
+# 🦕 Mesesaurios
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[![React Doctor](https://www.react.doctor/share/badge?p=pagina-romantica&s=100)](https://www.react.doctor/share?p=pagina-romantica&s=100)
+[![Deploy](https://github.com/DiamondStalker/esposos/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/DiamondStalker/esposos/actions/workflows/gh-pages.yml)
+[![PR Checks](https://github.com/DiamondStalker/esposos/actions/workflows/pr_checks.yml/badge.svg)](https://github.com/DiamondStalker/esposos/actions/workflows/pr_checks.yml)
+![Version](https://img.shields.io/github/package-json/v/DiamondStalker/esposos)
+![Last Commit](https://img.shields.io/github/last-commit/DiamondStalker/esposos)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap)
+![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-deployed-222?logo=github)
 
-## Available Scripts
+Página web romántica hecha con amor para celebrar cada mes juntos. 🐧💕🐱
 
-In the project directory, you can run:
+🔗 **[Ver en vivo](https://DiamondStalker.github.io/esposos)**
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## ✨ Funcionalidades
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- 🎉 **Popup de bienvenida** con contador de meses y días hasta el próximo aniversario
+- 🎵 **Playlist de Spotify** con autoplay al aceptar el popup
+- 📸 **Carrusel de fotos** con marco Polaroid personalizado
+- ✍️ **Animación typewriter** con el nombre de la pareja en el Polaroid
+- 🎈 **Celebración especial el día 26** — confetti y globos por toda la pantalla
+- 💕 **Corazones en el cursor** al mover el mouse
+- 🦕 **Cursor dinosaurio** personalizado
+- 📝 **Poema aleatorio** que cambia en cada visita
+- 📱 **Responsive** — se adapta a móvil y escritorio
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ Tecnologías
 
-### `npm run build`
+- [React 18](https://react.dev/)
+- [Bootstrap 5](https://getbootstrap.com/)
+- [React Bootstrap](https://react-bootstrap.netlify.app/)
+- [Spotify IFrame API](https://developer.spotify.com/documentation/embeds)
+- CSS Modules
+- GitHub Actions (CI/CD)
+- GitHub Pages
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 📁 Estructura del proyecto
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+src/
+├── assets/          # Imágenes, cursor, marco Polaroid
+│   └── img/         # Fotos del carrusel
+├── components/
+│   ├── Celebracion.jsx      # Animación confetti + globos
+│   ├── Celebracion.module.css
+│   ├── Fotos.jsx            # Carrusel Polaroid + Typewriter
+│   └── Fotos.module.css
+├── data/
+│   └── mesesaurios.json     # Frases, poemas, emojis y colores configurables
+├── App.js
+├── App.module.css
+├── config.js                # Configuración global (nombres, textos, fecha)
+└── index.css                # Estilos globales
+```
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## ⚙️ Configuración
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Para personalizar el proyecto edita estos dos archivos:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+**`src/config.js`** — nombres, fecha de inicio, textos de la página
+**`src/data/mesesaurios.json`** — frases del día 26, poemas, emojis y colores de la celebración
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 🚀 Desarrollo local
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+# Instalar dependencias
+npm install
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Iniciar servidor de desarrollo
+npm start
 
-### Code Splitting
+# Compilar para producción
+npm run build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Ejecutar lint
+npm run lint
+```
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🔄 Flujo de trabajo
 
-### Making a Progressive Web App
+```
+feature/nombre-rama → PR → checks automáticos → merge → deploy automático
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Toda nueva funcionalidad se desarrolla en una rama `feature/`
+- Los PRs ejecutan **lint + build** automáticamente antes de permitir el merge
+- Al mergear a `master` se despliega automáticamente a GitHub Pages
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📜 Licencia
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Proyecto personal y privado. Hecho con ❤️ por Pingui para Gatutu.
