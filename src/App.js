@@ -1,21 +1,47 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useReducer, useEffect, useRef } from 'react';
 import styles from './App.module.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
 import Celebracion from './components/Celebracion';
 import data from './data/mesesaurios.json';
 
-function App() {
-  const [monthsTogether, setMonthsTogether] = useState(0);
-  const [daysUntilNext, setDaysUntilNext] = useState(0);
-  const [showPopup, setShowPopup] = useState(true);
-  const [esDia26, setEsDia26] = useState(false);
-  const [celebracionActiva, setCelebracionActiva] = useState(false);
-  const [fraseDelDia, setFraseDelDia] = useState('');
-  const [poemaDelDia] = useState(() => {
+// ── Reducer para agrupar estados relacionados ──
+const initialState = {
+  monthsTogether: 0,
+  daysUntilNext: 0,
+  showPopup: true,
+  esDia26: false,
+  celebracionActiva: false,
+  fraseDelDia: '',
+  poemaDelDia: (() => {
     const randomIndex = Math.floor(Math.random() * data.poemas.length);
     return data.poemas[randomIndex];
-  });
+  })(),
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'UPDATE_MONTHS':
+      return {
+        ...state,
+        monthsTogether: action.monthsTogether,
+        daysUntilNext: action.daysUntilNext,
+        esDia26: action.esDia26,
+        fraseDelDia: action.fraseDelDia,
+      };
+    case 'ACCEPT_POPUP':
+      return { ...state, showPopup: false, celebracionActiva: action.esDia26 };
+    case 'STOP_CELEBRACION':
+      return { ...state, celebracionActiva: false };
+    default:
+      return state;
+  }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { monthsTogether, daysUntilNext, showPopup, esDia26, celebracionActiva, fraseDelDia, poemaDelDia } = state;
+
   const intervalRef = useRef(null);
   const controllerRef = useRef(null);
   const userAcceptedRef = useRef(false);
@@ -28,7 +54,6 @@ function App() {
       const monthDiff = now.getMonth() - startDate.getMonth();
       const dayDiff = now.getDate() >= startDate.getDate() ? 0 : -1;
       const totalMonths = yearDiff * 12 + monthDiff + dayDiff;
-      setMonthsTogether(totalMonths);
 
       const today = new Date();
       let nextAnniversary = new Date(today.getFullYear(), today.getMonth(), 26);
@@ -37,13 +62,19 @@ function App() {
       }
       const diffTime = nextAnniversary - today;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      setDaysUntilNext(diffDays);
 
-      if (today.getDate() === 6) { // cambiar a 26 en producción
-        setEsDia26(true);
-        const randomIndex = Math.floor(Math.random() * data.frases26.length);
-        setFraseDelDia(data.frases26[randomIndex]);
-      }
+      const isDia26 = today.getDate() === 6; // cambiar a 26 en producción
+      const frase = isDia26
+        ? data.frases26[Math.floor(Math.random() * data.frases26.length)]
+        : '';
+
+      dispatch({
+        type: 'UPDATE_MONTHS',
+        monthsTogether: totalMonths,
+        daysUntilNext: diffDays,
+        esDia26: isDia26,
+        fraseDelDia: frase,
+      });
     };
 
     updateMonths();
@@ -70,6 +101,8 @@ function App() {
     script.async = true;
     document.body.appendChild(script);
 
+    let embedController = null;
+
     window.onSpotifyIframeApiReady = (IFrameAPI) => {
       const options = {
         uri: 'spotify:playlist:0rHcsnXMIQjMNPzUmQfK2Z',
@@ -78,29 +111,42 @@ function App() {
       };
       const element = document.getElementById('spotify-embed-container');
       IFrameAPI.createController(element, options, (EmbedController) => {
+        embedController = EmbedController;
         controllerRef.current = EmbedController;
-        EmbedController.addListener('ready', () => {
+
+        const onReady = () => {
           if (userAcceptedRef.current) {
             EmbedController.play();
           }
-        });
+        };
+
+        EmbedController.addListener('ready', onReady);
+
+        // cleanup del listener
+        return () => {
+          EmbedController.removeListener('ready', onReady);
+        };
       });
     };
 
     return () => {
-      document.body.removeChild(script);
+      if (embedController) {
+        embedController.destroy?.();
+      }
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePopupAccept = () => {
-    setShowPopup(false);
     userAcceptedRef.current = true;
+    dispatch({ type: 'ACCEPT_POPUP', esDia26 });
     if (controllerRef.current) {
       controllerRef.current.play();
     }
     if (esDia26) {
-      setCelebracionActiva(true);
-      setTimeout(() => setCelebracionActiva(false), 7000);
+      setTimeout(() => dispatch({ type: 'STOP_CELEBRACION' }), 7000);
     }
   };
 
@@ -110,14 +156,10 @@ function App() {
       newHeart.className = 'heart';
       const offsetX = (Math.random() - 0.5) * 50;
       const offsetY = (Math.random() - 0.5) * 50;
-      newHeart.style.left = `${e.pageX + offsetX}px`;
-      newHeart.style.top = `${e.pageY + offsetY}px`;
+      newHeart.style.cssText = `left:${e.pageX + offsetX}px;top:${e.pageY + offsetY}px;opacity:1;transform:scale(1.5)`;
       document.body.appendChild(newHeart);
-      newHeart.style.opacity = 1;
-      newHeart.style.transform = 'scale(1.5)';
       setTimeout(() => {
-        newHeart.style.opacity = 0;
-        newHeart.style.transform = 'scale(1)';
+        newHeart.style.cssText += ';opacity:0;transform:scale(1)';
         setTimeout(() => newHeart.remove(), 400);
       }, 200);
     };

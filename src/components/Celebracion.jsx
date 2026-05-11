@@ -8,13 +8,18 @@ function crearConfetti(container, stylesRef) {
   for (let i = 0; i < cantidadConfetti; i++) {
     const confetti = document.createElement('div');
     confetti.className = stylesRef.confettiPiece;
-    confetti.style.left = `${Math.random() * 100}vw`;
-    confetti.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
-    confetti.style.animationDelay = `${Math.random() * 3}s`;
-    confetti.style.animationDuration = `${2.5 + Math.random() * 2}s`;
-    confetti.style.width = `${6 + Math.random() * 8}px`;
-    confetti.style.height = `${6 + Math.random() * 8}px`;
-    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    const size = `${6 + Math.random() * 8}px`;
+    const borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    // batch de todos los estilos en un solo cssText para evitar layout thrashing
+    confetti.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      background-color: ${colores[Math.floor(Math.random() * colores.length)]};
+      animation-delay: ${Math.random() * 3}s;
+      animation-duration: ${2.5 + Math.random() * 2}s;
+      width: ${size};
+      height: ${size};
+      border-radius: ${borderRadius};
+    `;
     container.appendChild(confetti);
   }
 }
@@ -24,10 +29,13 @@ function crearGlobos(container, stylesRef) {
     const globo = document.createElement('div');
     globo.className = stylesRef.globo;
     globo.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-    globo.style.left = `${5 + Math.random() * 90}vw`;
-    globo.style.animationDelay = `${Math.random() * 3}s`;
-    globo.style.animationDuration = `${4 + Math.random() * 3}s`;
-    globo.style.fontSize = `${2 + Math.random() * 2}rem`;
+    // batch de todos los estilos en un solo cssText
+    globo.style.cssText = `
+      left: ${5 + Math.random() * 90}vw;
+      animation-delay: ${Math.random() * 3}s;
+      animation-duration: ${4 + Math.random() * 3}s;
+      font-size: ${2 + Math.random() * 2}rem;
+    `;
     container.appendChild(globo);
   }
 }

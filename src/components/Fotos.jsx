@@ -1,38 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useReducer, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import Carousel from 'react-bootstrap/Carousel';
 import styles from './Fotos.module.css';
 import config from '../config';
 import marco from '../assets/marco.png';
 
+// ── Reducer para el Typewriter ──
+const twInitial = { displayed: '', deleting: false };
+
+function twReducer(state, action) {
+  switch (action.type) {
+    case 'TICK': {
+      const { text, indexRef } = action;
+      if (!state.deleting && indexRef.current < text.length) {
+        indexRef.current += 1;
+        return { ...state, displayed: state.displayed + text[indexRef.current - 1] };
+      }
+      if (!state.deleting && indexRef.current === text.length) {
+        return { ...state, deleting: true };
+      }
+      if (state.deleting && state.displayed.length > 0) {
+        return { ...state, displayed: state.displayed.slice(0, -1) };
+      }
+      if (state.deleting && state.displayed.length === 0) {
+        indexRef.current = 0;
+        return { displayed: '', deleting: false };
+      }
+      return state;
+    }
+    default:
+      return state;
+  }
+}
+
 function Typewriter({ text, speed = 100, deleteSpeed = 60, pauseAfter = 1500 }) {
-  const [displayed, setDisplayed] = useState('');
-  const [index, setIndex] = useState(0);
-  const [deleting, setDeleting] = useState(false);
+  const [twState, twDispatch] = useReducer(twReducer, twInitial);
+  const indexRef = useRef(0);
 
   useEffect(() => {
-    let timeout;
-    if (!deleting && index < text.length) {
-      timeout = setTimeout(() => {
-        setDisplayed(prev => prev + text[index]);
-        setIndex(prev => prev + 1);
-      }, speed);
-    } else if (!deleting && index === text.length) {
-      timeout = setTimeout(() => setDeleting(true), pauseAfter);
+    const { displayed, deleting } = twState;
+    let delay;
+
+    if (!deleting && indexRef.current < text.length) {
+      delay = speed;
+    } else if (!deleting && indexRef.current === text.length) {
+      delay = pauseAfter;
     } else if (deleting && displayed.length > 0) {
-      timeout = setTimeout(() => {
-        setDisplayed(prev => prev.slice(0, -1));
-      }, deleteSpeed);
-    } else if (deleting && displayed.length === 0) {
-      setDeleting(false);
-      setIndex(0);
+      delay = deleteSpeed;
+    } else {
+      delay = speed;
     }
+
+    const timeout = setTimeout(() => {
+      twDispatch({ type: 'TICK', text, indexRef });
+    }, delay);
+
     return () => clearTimeout(timeout);
-  }, [index, displayed, deleting, text, speed, deleteSpeed, pauseAfter]);
+  }, [twState, text, speed, deleteSpeed, pauseAfter]);
 
   return (
     <h2 className={styles.typewriterText}>
-      {displayed}
+      {twState.displayed}
       <span className={styles.typewriterCursor}>|</span>
     </h2>
   );
@@ -62,7 +90,7 @@ export default function Fotos() {
               indicators={false}
             >
               {images.map((img, idx) => (
-                <Carousel.Item key={idx}>
+                <Carousel.Item key={img.default || img}>
                   <div className={styles.carouselImageContainer}>
                     <img
                       src={img}
