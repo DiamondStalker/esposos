@@ -40,7 +40,15 @@ function reducer(state, action) {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { monthsTogether, daysUntilNext, showPopup, esDia26, celebracionActiva, fraseDelDia, poemaDelDia } = state;
+  const {
+    monthsTogether,
+    daysUntilNext,
+    showPopup,
+    esDia26,
+    celebracionActiva,
+    fraseDelDia,
+    poemaDelDia,
+  } = state;
 
   const intervalRef = useRef(null);
   const controllerRef = useRef(null);
@@ -64,9 +72,7 @@ function App() {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
       const isDia26 = today.getDate() === 6; // cambiar a 26 en producción
-      const frase = isDia26
-        ? data.frases26[Math.floor(Math.random() * data.frases26.length)]
-        : '';
+      const frase = isDia26 ? data.frases26[Math.floor(Math.random() * data.frases26.length)] : '';
 
       dispatch({
         type: 'UPDATE_MONTHS',
@@ -169,7 +175,6 @@ function App() {
 
   return (
     <div className={styles.appContainer}>
-
       <Celebracion activa={celebracionActiva} />
 
       {showPopup && (
@@ -178,27 +183,36 @@ function App() {
           <div className={styles.overlay} />
           <div className={styles.popup}>
             <h2>¡Bienvenido!</h2>
-            <p>Estás celebrando <strong>{monthsTogether} meses</strong> juntos.</p>
-            {daysUntilNext === 0
-              ? <p className={styles.popupCountdown}>🎉 {fraseDelDia}</p>
-              : <p className={styles.popupCountdown}>Faltan <strong>{daysUntilNext} días</strong> para el próximo mes ❤️</p>
-            }
+            <p>
+              Estás celebrando <strong>{monthsTogether} meses</strong> juntos.
+            </p>
+            {daysUntilNext === 0 ? (
+              <p className={styles.popupCountdown}>🎉 {fraseDelDia}</p>
+            ) : (
+              <p className={styles.popupCountdown}>
+                Faltan <strong>{daysUntilNext} días</strong> para el próximo mes ❤️
+              </p>
+            )}
             <button onClick={handlePopupAccept}>Aceptar</button>
           </div>
         </>
       )}
 
       <header className={styles.header}>
-        <h1 style={{ fontFamily: "Miss Fajardose, cursive" }}>¡Feliz {monthsTogether} Meses, Mi Amor!</h1>
+        <h1 style={{ fontFamily: 'Miss Fajardose, cursive' }}>
+          ¡Feliz {monthsTogether} Meses, Mi Amor!
+        </h1>
         <p>Gracias por hacerme la persona más feliz del mundo.</p>
       </header>
 
       <div className={styles.layout}>
-
         <aside className={styles.colLeft}>
           <div className={styles.widgetSpotify}>
             <h3 className={styles.widgetTitle}>🎵 Nuestra Música</h3>
-            <div id="spotify-embed-container" style={{ borderRadius: '12px', overflow: 'hidden' }} />
+            <div
+              id="spotify-embed-container"
+              style={{ borderRadius: '12px', overflow: 'hidden' }}
+            />
           </div>
         </aside>
 
@@ -207,7 +221,10 @@ function App() {
             <Fotos />
             <p className={styles.message}>
               {poemaDelDia.split('\n').map((linea, i) => (
-                <span key={i}>{linea}<br /></span>
+                <span key={i}>
+                  {linea}
+                  <br />
+                </span>
               ))}
             </p>
           </section>
@@ -218,10 +235,9 @@ function App() {
             <span>✨ Próximamente</span>
           </div>
         </aside>
-
       </div>
 
-      <footer className={styles.footer} style={{ fontFamily: "Edu AU VIC WA NT Dots, cursive" }}>
+      <footer className={styles.footer} style={{ fontFamily: 'Edu AU VIC WA NT Dots, cursive' }}>
         <p>Para siempre, con amor ❤️ Pingui</p>
       </footer>
     </div>

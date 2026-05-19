@@ -5,7 +5,9 @@ body {
   background-color: #ffe4e1;
   color: #800000;
   text-align: center;
-  cursor: url('./assets/dino_cursor.png') 16 16, auto;
+  cursor:
+    url('./assets/dino_cursor.png') 16 16,
+    auto;
 }
 
 h4 {
@@ -26,5 +28,7 @@ iframe {
   background-size: cover;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }

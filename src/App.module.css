@@ -103,7 +103,10 @@
 /* ── Overlay ── */
 .overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.9);
   z-index: 900;
 }
@@ -111,7 +114,8 @@
 /* ── Popup ── */
 .popup {
   position: fixed;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
   border: 2px solid #f0c0cc;
@@ -150,7 +154,9 @@
   font-size: 1rem;
   cursor: pointer;
   margin-top: 8px;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 
 .popup button:hover {
