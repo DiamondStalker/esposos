@@ -38,7 +38,11 @@ jobs:
         run: npx audit-ci --config audit-ci.jsonc
 
       - name: React Doctor
-        run: npx react-doctor@latest --ci
+        uses: millionco/react-doctor@main
+        with:
+          diff: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fail-on: error
 
       - name: Build check
         run: npm run build
