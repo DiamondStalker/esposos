@@ -71,15 +71,17 @@ export default function Fotos() {
   const images = importAll(require.context('../assets/img', false, /\.(png|jpe?g|svg)$/));
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const handlePrev = () => setActiveIndex(i => (i === 0 ? images.length - 1 : i - 1));
-  const handleNext = () => setActiveIndex(i => (i === images.length - 1 ? 0 : i + 1));
+  const handlePrev = () => setActiveIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+  const handleNext = () => setActiveIndex((i) => (i === images.length - 1 ? 0 : i + 1));
 
   return (
     <div>
       <h4>{config.textos.tituloCarrusel}</h4>
 
       <div className={styles.carouselOuter}>
-        <button className={styles.carouselBtn} onClick={handlePrev}>‹</button>
+        <button className={styles.carouselBtn} onClick={handlePrev}>
+          ‹
+        </button>
 
         <div className={styles.carouselWrapper}>
           <div className={styles.carouselInnerWrapper}>
@@ -92,11 +94,7 @@ export default function Fotos() {
               {images.map((img, idx) => (
                 <Carousel.Item key={img.default || img}>
                   <div className={styles.carouselImageContainer}>
-                    <img
-                      src={img}
-                      alt={`Aventura ${idx + 1}`}
-                      className={styles.carouselImage}
-                    />
+                    <img src={img} alt={`Aventura ${idx + 1}`} className={styles.carouselImage} />
                   </div>
                 </Carousel.Item>
               ))}
@@ -106,14 +104,23 @@ export default function Fotos() {
           <img src={marco} alt="marco" className={styles.carouselMarco} />
 
           <div className={styles.polaroidTextArea}>
-            <Typewriter text={config.nombres.etiqueta} speed={120} deleteSpeed={60} pauseAfter={1500} />
+            <Typewriter
+              text={config.nombres.etiqueta}
+              speed={120}
+              deleteSpeed={60}
+              pauseAfter={1500}
+            />
           </div>
         </div>
 
-        <button className={styles.carouselBtn} onClick={handleNext}>›</button>
+        <button className={styles.carouselBtn} onClick={handleNext}>
+          ›
+        </button>
       </div>
 
-      <p className={styles.carouselCounter}>{activeIndex + 1} / {images.length}</p>
+      <p className={styles.carouselCounter}>
+        {activeIndex + 1} / {images.length}
+      </p>
     </div>
   );
 }
