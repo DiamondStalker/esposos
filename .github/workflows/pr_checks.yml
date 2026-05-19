@@ -35,7 +35,7 @@ jobs:
         run: npm run lint
 
       - name: Security audit
-        run: npm audit --audit-level=critical
+        run: npx audit-ci --config audit-ci.jsonc
 
       - name: React Doctor
         run: npx react-doctor@latest --ci
