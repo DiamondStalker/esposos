@@ -128,7 +128,6 @@ function App() {
 
         EmbedController.addListener('ready', onReady);
 
-        // cleanup del listener
         return () => {
           EmbedController.removeListener('ready', onReady);
         };
@@ -220,8 +219,9 @@ function App() {
           <section className={styles.content}>
             <Fotos />
             <p className={styles.message}>
-              {poemaDelDia.split('\n').map((linea, i) => (
-                <span key={i}>
+              {/* key basado en contenido en vez de índice */}
+              {poemaDelDia.split('\n').map((linea) => (
+                <span key={linea}>
                   {linea}
                   <br />
                 </span>
