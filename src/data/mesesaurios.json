@@ -13,12 +13,29 @@
     "Eres el verso que no sabía escribir,\nla canción que quiero siempre oír.\nContigo aprendí que amar de verdad\nes encontrar en otro tu mitad."
   ],
   "celebracion": {
-    "emojis": ["🎈", "🎀", "💕", "🎊", "💖", "🐧", "🐱", "🐾", "🐟", "🦭", "🐼", "🐨", "🐻‍❄️", "❄️", "💙", "🩵", "🐈", "🌸"],
+    "emojis": [
+      "🎈",
+      "🎀",
+      "💕",
+      "🎊",
+      "💖",
+      "🐧",
+      "🐱",
+      "🐾",
+      "🐟",
+      "🦭",
+      "🐼",
+      "🐨",
+      "🐻‍❄️",
+      "❄️",
+      "💙",
+      "🩵",
+      "🐈",
+      "🌸"
+    ],
     "colores": ["#ff6a88", "#ffb199", "#ff4e50", "#c0396b", "#ff8fab", "#ffffff", "#ffccd5"],
     "cantidadGlobos": 20,
     "cantidadConfetti": 150
   },
-  "whitelist": [
-    "cmoreno981@gmail.com"
-  ]
+  "whitelist": ["cmoreno981@gmail.com"]
 }

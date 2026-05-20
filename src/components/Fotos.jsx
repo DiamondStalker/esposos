@@ -77,7 +77,9 @@ export default function Fotos() {
       <h4>{config.textos.tituloCarrusel}</h4>
 
       <div className={styles.carouselOuter}>
-        <button className={styles.carouselBtn} onClick={handlePrev}>&lt;</button>
+        <button className={styles.carouselBtn} onClick={handlePrev}>
+          &lt;
+        </button>
 
         <div className={styles.carouselWrapper}>
           <div className={styles.carouselInnerWrapper}>
@@ -109,8 +111,7 @@ export default function Fotos() {
                         />
                       </div>
                     </Carousel.Item>
-                  ))
-              }
+                  ))}
             </Carousel>
           </div>
 
@@ -126,7 +127,9 @@ export default function Fotos() {
           </div>
         </div>
 
-        <button className={styles.carouselBtn} onClick={handleNext}>&gt;</button>
+        <button className={styles.carouselBtn} onClick={handleNext}>
+          &gt;
+        </button>
       </div>
 
       <p className={styles.carouselCounter}>

@@ -12,7 +12,9 @@
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(192, 57, 107, 0.4);
   z-index: 500;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,7 +149,9 @@
   cursor: pointer;
   font-size: 0.9rem;
   color: #800000;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .tagOption input {
@@ -180,7 +184,9 @@
   font-size: 1rem;
   font-family: 'Georgia', serif;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 
 .submitBtn:hover:not(:disabled) {

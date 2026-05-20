@@ -18,31 +18,49 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'TOGGLE': return { ...state, open: !state.open, error: null };
-    case 'SET_FILE': return { ...state, file: action.file, preview: action.preview };
-    case 'SET_DESCRIPCION': return { ...state, descripcion: action.value };
-    case 'SET_TAG': return { ...state, tag: action.value };
-    case 'SET_UPLOADING': return { ...state, uploading: action.value };
-    case 'SET_ERROR': return { ...state, error: action.value, uploading: false };
-    case 'RESET': return { ...initialState };
-    default: return state;
+    case 'TOGGLE':
+      return { ...state, open: !state.open, error: null };
+    case 'SET_FILE':
+      return { ...state, file: action.file, preview: action.preview };
+    case 'SET_DESCRIPCION':
+      return { ...state, descripcion: action.value };
+    case 'SET_TAG':
+      return { ...state, tag: action.value };
+    case 'SET_UPLOADING':
+      return { ...state, uploading: action.value };
+    case 'SET_ERROR':
+      return { ...state, error: action.value, uploading: false };
+    case 'RESET':
+      return { ...initialState };
+    default:
+      return state;
   }
 }
 
 // Cámara instantánea estilo Instax/Polaroid
 const InstaxIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="white"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     {/* Cuerpo de la cámara */}
-    <rect x="2" y="6" width="20" height="14" rx="2" ry="2" fill="none"/>
+    <rect x="2" y="6" width="20" height="14" rx="2" ry="2" fill="none" />
     {/* Lente */}
-    <circle cx="12" cy="13" r="3.5"/>
-    <circle cx="12" cy="13" r="1.5" strokeWidth="1"/>
+    <circle cx="12" cy="13" r="3.5" />
+    <circle cx="12" cy="13" r="1.5" strokeWidth="1" />
     {/* Flash rectangular arriba */}
-    <rect x="6" y="3" width="5" height="3" rx="1"/>
+    <rect x="6" y="3" width="5" height="3" rx="1" />
     {/* Visor */}
-    <rect x="15" y="3" width="3" height="3" rx="0.5"/>
+    <rect x="15" y="3" width="3" height="3" rx="0.5" />
     {/* Botón disparador */}
-    <circle cx="18.5" cy="9" r="0.8" fill="white"/>
+    <circle cx="18.5" cy="9" r="0.8" fill="white" />
   </svg>
 );
 
@@ -90,23 +108,36 @@ export default function SubirFoto() {
 
   return (
     <>
-      <button className={styles.fab} onClick={() => dispatch({ type: 'TOGGLE' })} title="Subir foto">
+      <button
+        className={styles.fab}
+        onClick={() => dispatch({ type: 'TOGGLE' })}
+        title="Subir foto"
+      >
         <InstaxIcon />
       </button>
 
       {open && (
         <div className={styles.overlay} onClick={() => dispatch({ type: 'TOGGLE' })}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.close} onClick={() => dispatch({ type: 'TOGGLE' })}>✕</button>
+            <button className={styles.close} onClick={() => dispatch({ type: 'TOGGLE' })}>
+              ✕
+            </button>
             <h2 className={styles.title}>📸 Subir foto</h2>
 
             <div className={styles.previewArea} onClick={() => fileRef.current.click()}>
-              {preview
-                ? <img src={preview} alt="preview" className={styles.preview} />
-                : <span className={styles.previewPlaceholder}>Toca para elegir una foto</span>
-              }
+              {preview ? (
+                <img src={preview} alt="preview" className={styles.preview} />
+              ) : (
+                <span className={styles.previewPlaceholder}>Toca para elegir una foto</span>
+              )}
             </div>
-            <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className={styles.fileInput} />
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+              className={styles.fileInput}
+            />
 
             <textarea
               className={styles.textarea}
@@ -126,7 +157,9 @@ export default function SubirFoto() {
                 />
                 📱 Post
               </label>
-              <label className={`${styles.tagOption} ${tag === 'principal' ? styles.tagActive : ''}`}>
+              <label
+                className={`${styles.tagOption} ${tag === 'principal' ? styles.tagActive : ''}`}
+              >
                 <input
                   type="radio"
                   value="principal"
@@ -139,11 +172,7 @@ export default function SubirFoto() {
 
             {error && <p className={styles.error}>{error}</p>}
 
-            <button
-              className={styles.submitBtn}
-              onClick={handleSubir}
-              disabled={uploading}
-            >
+            <button className={styles.submitBtn} onClick={handleSubir} disabled={uploading}>
               {uploading ? 'Subiendo...' : 'Subir foto ❤️'}
             </button>
           </div>

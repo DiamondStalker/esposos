@@ -11,11 +11,7 @@ export default function Login() {
         <h1 className={styles.loginTitle}>🦕 Mesesaurios</h1>
         <p className={styles.loginSubtitle}>Un espacio solo para nosotros</p>
 
-        {accessDenied && (
-          <p className={styles.loginError}>
-            ❌ No tienes acceso a esta página.
-          </p>
-        )}
+        {accessDenied && <p className={styles.loginError}>❌ No tienes acceso a esta página.</p>}
 
         <button className={styles.loginButton} onClick={loginWithGoogle}>
           <img
