@@ -1,17 +1,9 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import {
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../firebase';
 
 const AuthContext = createContext();
-
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 function authReducer(state, action) {
   switch (action.type) {
@@ -40,22 +32,6 @@ export function AuthProvider({ children }) {
   });
 
   useEffect(() => {
-    // Manejar resultado del redirect (solo en producción)
-    if (IS_PRODUCTION) {
-      getRedirectResult(auth)
-        .then(async (result) => {
-          if (!result) return;
-          const allowed = await checkWhitelist(result.user);
-          if (allowed) {
-            dispatch({ type: 'SET_USER', user: result.user });
-          } else {
-            await signOut(auth);
-            dispatch({ type: 'ACCESS_DENIED' });
-          }
-        })
-        .catch(() => {});
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
@@ -80,13 +56,7 @@ export function AuthProvider({ children }) {
 
   const loginWithGoogle = async () => {
     try {
-      if (IS_PRODUCTION) {
-        // En producción usar redirect — evita el problema COOP de GitHub Pages
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        // En desarrollo usar popup — más cómodo
-        await signInWithPopup(auth, googleProvider);
-      }
+      await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
     }
