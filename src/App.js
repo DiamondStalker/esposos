@@ -3,9 +3,10 @@ import styles from './App.module.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
 import Celebracion from './components/Celebracion';
+import Login from './components/Login';
+import { useAuth } from './context/AuthContext';
 import data from './data/mesesaurios.json';
 
-// ── Reducer para agrupar estados relacionados ──
 const initialState = {
   monthsTogether: 0,
   daysUntilNext: 0,
@@ -38,7 +39,7 @@ function reducer(state, action) {
   }
 }
 
-function App() {
+function MainApp() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     monthsTogether,
@@ -50,6 +51,7 @@ function App() {
     poemaDelDia,
   } = state;
 
+  const { user, logout } = useAuth();
   const intervalRef = useRef(null);
   const controllerRef = useRef(null);
   const userAcceptedRef = useRef(false);
@@ -176,6 +178,13 @@ function App() {
     <div className={styles.appContainer}>
       <Celebracion activa={celebracionActiva} />
 
+      {/* Botón logout fijo en esquina superior derecha a altura del header */}
+      <div className={styles.logoutWrapper}>
+        <button className={styles.logoutBtn} onClick={logout}>
+          👤 {user?.displayName} · Cerrar sesión
+        </button>
+      </div>
+
       {showPopup && (
         <>
           <div className="heart" />
@@ -219,7 +228,6 @@ function App() {
           <section className={styles.content}>
             <Fotos />
             <p className={styles.message}>
-              {/* key basado en contenido en vez de índice */}
               {poemaDelDia.split('\n').map((linea) => (
                 <span key={linea}>
                   {linea}
@@ -242,6 +250,24 @@ function App() {
       </footer>
     </div>
   );
+}
+
+function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#ffe4e1' }}>
+        <p style={{ fontFamily: 'Miss Fajardose, cursive', fontSize: '2rem', color: '#c0396b' }}>Cargando... 🦕</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login />;
+  }
+
+  return <MainApp />;
 }
 
 export default App;
