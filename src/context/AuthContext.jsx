@@ -11,6 +11,8 @@ import { auth, db, googleProvider } from '../firebase';
 
 const AuthContext = createContext();
 
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
 function authReducer(state, action) {
   switch (action.type) {
     case 'SET_USER':
@@ -24,6 +26,12 @@ function authReducer(state, action) {
   }
 }
 
+async function checkWhitelist(currentUser) {
+  const whitelistDoc = await getDoc(doc(db, 'config', 'whitelist'));
+  const allowedEmails = whitelistDoc.exists() ? whitelistDoc.data().emails || [] : [];
+  return allowedEmails.includes(currentUser.email);
+}
+
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, {
     user: null,
@@ -32,16 +40,27 @@ export function AuthProvider({ children }) {
   });
 
   useEffect(() => {
-    getRedirectResult(auth).catch(() => {});
+    // Manejar resultado del redirect (solo en producción)
+    if (IS_PRODUCTION) {
+      getRedirectResult(auth)
+        .then(async (result) => {
+          if (!result) return;
+          const allowed = await checkWhitelist(result.user);
+          if (allowed) {
+            dispatch({ type: 'SET_USER', user: result.user });
+          } else {
+            await signOut(auth);
+            dispatch({ type: 'ACCESS_DENIED' });
+          }
+        })
+        .catch(() => {});
+    }
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          // Leer whitelist desde Firestore — nunca en el código
-          const whitelistDoc = await getDoc(doc(db, 'config', 'whitelist'));
-          const allowedEmails = whitelistDoc.exists() ? whitelistDoc.data().emails || [] : [];
-
-          if (allowedEmails.includes(currentUser.email)) {
+          const allowed = await checkWhitelist(currentUser);
+          if (allowed) {
             dispatch({ type: 'SET_USER', user: currentUser });
           } else {
             await signOut(auth);
@@ -61,14 +80,15 @@ export function AuthProvider({ children }) {
 
   const loginWithGoogle = async () => {
     try {
-      dispatch({ type: 'ACCESS_DENIED' });
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+      if (IS_PRODUCTION) {
+        // En producción usar redirect — evita el problema COOP de GitHub Pages
         await signInWithRedirect(auth, googleProvider);
       } else {
-        console.error('Error al iniciar sesión:', error);
+        // En desarrollo usar popup — más cómodo
+        await signInWithPopup(auth, googleProvider);
       }
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
     }
   };
 
