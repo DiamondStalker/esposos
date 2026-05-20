@@ -1,0 +1,75 @@
+.loginContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #ffe4e1;
+}
+
+.loginCard {
+  background-color: #fff7f7;
+  border-radius: 20px;
+  padding: 48px 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 380px;
+  width: 100%;
+}
+
+.loginTitle {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 3rem;
+  font-weight: normal;
+  color: #c0396b;
+  margin: 0 0 8px 0;
+}
+
+.loginSubtitle {
+  font-family: 'Georgia', serif;
+  font-size: 1.1rem;
+  color: #800000;
+  margin: 0 0 32px 0;
+  opacity: 0.8;
+}
+
+.loginError {
+  background-color: #ffe0e0;
+  border: 1px solid #ffb0b0;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.95rem;
+  color: #c0396b;
+  margin-bottom: 20px;
+}
+
+.loginButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 24px;
+  background-color: white;
+  border: 2px solid #f0c0cc;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  color: #800000;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.1s,
+    box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.loginButton:hover {
+  background-color: #fff0f3;
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(192, 57, 107, 0.15);
+}
+
+.loginGoogleIcon {
+  width: 22px;
+  height: 22px;
+}

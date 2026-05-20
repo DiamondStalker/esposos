@@ -1,0 +1,215 @@
+/* ── Botón flotante ── */
+.fab {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #c0396b;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(192, 57, 107, 0.4);
+  z-index: 500;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(192, 57, 107, 0.5);
+}
+
+/* ── Overlay wrapper ── */
+.overlayWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Overlay fondo como button ── */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ── Modal ── */
+.modal {
+  background-color: #fff7f7;
+  border-radius: 20px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #c0396b;
+  opacity: 0.7;
+}
+
+.close:hover {
+  opacity: 1;
+}
+
+.title {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 2rem;
+  font-weight: normal;
+  color: #c0396b;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+/* ── Preview de imagen ── */
+.previewArea {
+  width: 100%;
+  height: 200px;
+  border: 2px dashed #f0c0cc;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+  background: white;
+  box-sizing: border-box;
+}
+
+.previewArea:hover {
+  border-color: #c0396b;
+}
+
+.preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewPlaceholder {
+  color: #c0396b;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* ── Textarea ── */
+.textarea {
+  width: 100%;
+  border: 1px solid #f0c0cc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: 'Georgia', serif;
+  font-size: 0.9rem;
+  color: #800000;
+  resize: none;
+  margin-bottom: 14px;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #c0396b;
+}
+
+/* ── Selector de tag ── */
+.tagGroup {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tagOption {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border: 2px solid #f0c0cc;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #800000;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.tagOption input {
+  display: none;
+}
+
+.tagActive {
+  border-color: #c0396b;
+  background-color: #fff0f3;
+  color: #c0396b;
+  font-weight: bold;
+}
+
+/* ── Error ── */
+.error {
+  color: #dc0a2d;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* ── Botón de subida ── */
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: #c0396b;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #a02d58;
+  transform: scale(1.02);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

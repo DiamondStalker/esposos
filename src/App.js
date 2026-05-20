@@ -3,9 +3,12 @@ import styles from './App.module.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
 import Celebracion from './components/Celebracion';
+import Login from './components/Login';
+import FeedPosts from './components/FeedPosts';
+import SubirFoto from './components/SubirFoto';
+import { useAuth } from './context/AuthContext';
 import data from './data/mesesaurios.json';
 
-// ── Reducer para agrupar estados relacionados ──
 const initialState = {
   monthsTogether: 0,
   daysUntilNext: 0,
@@ -38,7 +41,7 @@ function reducer(state, action) {
   }
 }
 
-function App() {
+function MainApp() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     monthsTogether,
@@ -50,6 +53,7 @@ function App() {
     poemaDelDia,
   } = state;
 
+  const { user, logout } = useAuth();
   const intervalRef = useRef(null);
   const controllerRef = useRef(null);
   const userAcceptedRef = useRef(false);
@@ -71,7 +75,7 @@ function App() {
       const diffTime = nextAnniversary - today;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      const isDia26 = today.getDate() === 6; // cambiar a 26 en producción
+      const isDia26 = today.getDate() === 26;
       const frase = isDia26 ? data.frases26[Math.floor(Math.random() * data.frases26.length)] : '';
 
       dispatch({
@@ -102,7 +106,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (document.getElementById('spotify-iframe-script')) return;
+
     const script = document.createElement('script');
+    script.id = 'spotify-iframe-script';
     script.src = 'https://open.spotify.com/embed/iframe-api/v1';
     script.async = true;
     document.body.appendChild(script);
@@ -110,12 +117,15 @@ function App() {
     let embedController = null;
 
     window.onSpotifyIframeApiReady = (IFrameAPI) => {
+      const element = document.getElementById('spotify-embed-container');
+      if (!element) return;
+
       const options = {
         uri: 'spotify:playlist:0rHcsnXMIQjMNPzUmQfK2Z',
         width: '100%',
         height: '352',
       };
-      const element = document.getElementById('spotify-embed-container');
+
       IFrameAPI.createController(element, options, (EmbedController) => {
         embedController = EmbedController;
         controllerRef.current = EmbedController;
@@ -137,9 +147,6 @@ function App() {
     return () => {
       if (embedController) {
         embedController.destroy?.();
-      }
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
       }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -175,6 +182,16 @@ function App() {
   return (
     <div className={styles.appContainer}>
       <Celebracion activa={celebracionActiva} />
+
+      {/* Botón flotante para subir fotos */}
+      <SubirFoto />
+
+      {/* Botón logout fijo en esquina superior derecha */}
+      <div className={styles.logoutWrapper}>
+        <button className={styles.logoutBtn} onClick={logout}>
+          👤 {user?.displayName} · Cerrar sesión
+        </button>
+      </div>
 
       {showPopup && (
         <>
@@ -219,7 +236,6 @@ function App() {
           <section className={styles.content}>
             <Fotos />
             <p className={styles.message}>
-              {/* key basado en contenido en vez de índice */}
               {poemaDelDia.split('\n').map((linea) => (
                 <span key={linea}>
                   {linea}
@@ -231,9 +247,7 @@ function App() {
         </main>
 
         <aside className={styles.colRight}>
-          <div className={styles.widgetPlaceholder}>
-            <span>✨ Próximamente</span>
-          </div>
+          <FeedPosts />
         </aside>
       </div>
 
@@ -242,6 +256,34 @@ function App() {
       </footer>
     </div>
   );
+}
+
+function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          background: '#ffe4e1',
+        }}
+      >
+        <p style={{ fontFamily: 'Miss Fajardose, cursive', fontSize: '2rem', color: '#c0396b' }}>
+          Cargando... 🦕
+        </p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login />;
+  }
+
+  return <MainApp />;
 }
 
 export default App;
