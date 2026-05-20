@@ -73,7 +73,7 @@ export default function FeedPosts() {
           <span>Aún no hay fotos aquí ✨</span>
         </div>
       ) : (
-        <ul className={styles.feedList} role="list">
+        <ul className={styles.feedList}>
           {posts.map((post, idx) => (
             <li key={post.id} className={styles.feedItem}>
               <button
@@ -94,14 +94,12 @@ export default function FeedPosts() {
       )}
 
       {selectedPost && (
-        /* Overlay como dialog accesible */
         <div
           className={styles.modalOverlayWrapper}
           role="dialog"
           aria-modal="true"
           aria-label="Foto ampliada"
         >
-          {/* Fondo clickeable como button */}
           <button
             className={styles.modalOverlay}
             onClick={() => dispatch({ type: 'CLOSE' })}
