@@ -4,6 +4,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import Fotos from './components/Fotos';
 import Celebracion from './components/Celebracion';
 import Login from './components/Login';
+import FeedPosts from './components/FeedPosts';
+import SubirFoto from './components/SubirFoto';
 import { useAuth } from './context/AuthContext';
 import data from './data/mesesaurios.json';
 
@@ -73,7 +75,7 @@ function MainApp() {
       const diffTime = nextAnniversary - today;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      const isDia26 = today.getDate() === 6; // cambiar a 26 en producción
+      const isDia26 = today.getDate() === 26;
       const frase = isDia26 ? data.frases26[Math.floor(Math.random() * data.frases26.length)] : '';
 
       dispatch({
@@ -104,7 +106,10 @@ function MainApp() {
   }, []);
 
   useEffect(() => {
+    if (document.getElementById('spotify-iframe-script')) return;
+
     const script = document.createElement('script');
+    script.id = 'spotify-iframe-script';
     script.src = 'https://open.spotify.com/embed/iframe-api/v1';
     script.async = true;
     document.body.appendChild(script);
@@ -112,12 +117,15 @@ function MainApp() {
     let embedController = null;
 
     window.onSpotifyIframeApiReady = (IFrameAPI) => {
+      const element = document.getElementById('spotify-embed-container');
+      if (!element) return;
+
       const options = {
         uri: 'spotify:playlist:0rHcsnXMIQjMNPzUmQfK2Z',
         width: '100%',
         height: '352',
       };
-      const element = document.getElementById('spotify-embed-container');
+
       IFrameAPI.createController(element, options, (EmbedController) => {
         embedController = EmbedController;
         controllerRef.current = EmbedController;
@@ -139,9 +147,6 @@ function MainApp() {
     return () => {
       if (embedController) {
         embedController.destroy?.();
-      }
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
       }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -178,7 +183,10 @@ function MainApp() {
     <div className={styles.appContainer}>
       <Celebracion activa={celebracionActiva} />
 
-      {/* Botón logout fijo en esquina superior derecha a altura del header */}
+      {/* Botón flotante para subir fotos */}
+      <SubirFoto />
+
+      {/* Botón logout fijo en esquina superior derecha */}
       <div className={styles.logoutWrapper}>
         <button className={styles.logoutBtn} onClick={logout}>
           👤 {user?.displayName} · Cerrar sesión
@@ -239,9 +247,7 @@ function MainApp() {
         </main>
 
         <aside className={styles.colRight}>
-          <div className={styles.widgetPlaceholder}>
-            <span>✨ Próximamente</span>
-          </div>
+          <FeedPosts />
         </aside>
       </div>
 
@@ -257,8 +263,18 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#ffe4e1' }}>
-        <p style={{ fontFamily: 'Miss Fajardose, cursive', fontSize: '2rem', color: '#c0396b' }}>Cargando... 🦕</p>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          background: '#ffe4e1',
+        }}
+      >
+        <p style={{ fontFamily: 'Miss Fajardose, cursive', fontSize: '2rem', color: '#c0396b' }}>
+          Cargando... 🦕
+        </p>
       </div>
     );
   }

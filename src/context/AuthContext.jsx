@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import {
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import data from '../data/mesesaurios.json';
 
@@ -11,14 +17,15 @@ export function AuthProvider({ children }) {
   const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
+    // Manejar resultado de redirect al cargar la página
+    getRedirectResult(auth).catch(() => {});
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        // Verificar whitelist
         if (data.whitelist.includes(currentUser.email)) {
           setUser(currentUser);
           setAccessDenied(false);
         } else {
-          // Email no está en whitelist — desloguear
           signOut(auth);
           setUser(null);
           setAccessDenied(true);
@@ -35,9 +42,14 @@ export function AuthProvider({ children }) {
   const loginWithGoogle = async () => {
     try {
       setAccessDenied(false);
+      // Intentar popup primero, si falla usar redirect
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        console.error('Error al iniciar sesión:', error);
+      }
     }
   };
 
