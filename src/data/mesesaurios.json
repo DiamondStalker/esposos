@@ -36,6 +36,5 @@
     "colores": ["#ff6a88", "#ffb199", "#ff4e50", "#c0396b", "#ff8fab", "#ffffff", "#ffccd5"],
     "cantidadGlobos": 20,
     "cantidadConfetti": 150
-  },
-  "whitelist": ["cmoreno981@gmail.com"]
+  }
 }

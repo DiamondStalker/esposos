@@ -1,49 +1,66 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useReducer, useCallback } from 'react';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import styles from './FeedPosts.module.css';
 
+function feedReducer(state, action) {
+  switch (action.type) {
+    case 'SET_POSTS':
+      return { ...state, posts: action.posts };
+    case 'SELECT':
+      return { ...state, selectedIndex: action.index };
+    case 'CLOSE':
+      return { ...state, selectedIndex: null };
+    case 'PREV':
+      return {
+        ...state,
+        selectedIndex: state.selectedIndex > 0 ? state.selectedIndex - 1 : state.posts.length - 1,
+      };
+    case 'NEXT':
+      return {
+        ...state,
+        selectedIndex: state.selectedIndex < state.posts.length - 1 ? state.selectedIndex + 1 : 0,
+      };
+    default:
+      return state;
+  }
+}
+
 export default function FeedPosts() {
-  const [posts, setPosts] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [state, dispatch] = useReducer(feedReducer, { posts: [], selectedIndex: null });
+  const { posts, selectedIndex } = state;
 
   useEffect(() => {
     const q = query(collection(db, 'fotos'), where('tag', '==', 'post'), orderBy('fecha', 'desc'));
-
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setPosts(data);
+      dispatch({
+        type: 'SET_POSTS',
+        posts: snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
+      });
     });
-
     return () => unsubscribe();
   }, []);
 
-  const handlePrev = useCallback(
-    (e) => {
-      e.stopPropagation();
-      setSelectedIndex((i) => (i > 0 ? i - 1 : posts.length - 1));
-    },
-    [posts.length]
-  );
+  const handlePrev = useCallback((e) => {
+    e.stopPropagation();
+    dispatch({ type: 'PREV' });
+  }, []);
 
-  const handleNext = useCallback(
-    (e) => {
-      e.stopPropagation();
-      setSelectedIndex((i) => (i < posts.length - 1 ? i + 1 : 0));
-    },
-    [posts.length]
-  );
+  const handleNext = useCallback((e) => {
+    e.stopPropagation();
+    dispatch({ type: 'NEXT' });
+  }, []);
 
   useEffect(() => {
     if (selectedIndex === null) return;
     const handleKey = (e) => {
-      if (e.key === 'ArrowLeft') setSelectedIndex((i) => (i > 0 ? i - 1 : posts.length - 1));
-      if (e.key === 'ArrowRight') setSelectedIndex((i) => (i < posts.length - 1 ? i + 1 : 0));
-      if (e.key === 'Escape') setSelectedIndex(null);
+      if (e.key === 'ArrowLeft') dispatch({ type: 'PREV' });
+      if (e.key === 'ArrowRight') dispatch({ type: 'NEXT' });
+      if (e.key === 'Escape') dispatch({ type: 'CLOSE' });
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [selectedIndex, posts.length]);
+  }, [selectedIndex]);
 
   const selectedPost = selectedIndex !== null ? posts[selectedIndex] : null;
 
@@ -56,31 +73,59 @@ export default function FeedPosts() {
           <span>Aún no hay fotos aquí ✨</span>
         </div>
       ) : (
-        <div className={styles.feedList}>
+        <ul className={styles.feedList} role="list">
           {posts.map((post, idx) => (
-            <div key={post.id} className={styles.feedItem} onClick={() => setSelectedIndex(idx)}>
-              <img src={post.url} alt={post.descripcion} className={styles.feedImg} />
+            <li key={post.id} className={styles.feedItem}>
+              <button
+                className={styles.feedItemBtn}
+                onClick={() => dispatch({ type: 'SELECT', index: idx })}
+                aria-label={post.descripcion || `Ver foto ${idx + 1}`}
+              >
+                <img
+                  src={post.url}
+                  alt={post.descripcion || `Foto ${idx + 1}`}
+                  className={styles.feedImg}
+                />
+              </button>
               {post.descripcion && <p className={styles.feedDesc}>{post.descripcion}</p>}
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       {selectedPost && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedIndex(null)}>
+        /* Overlay como dialog accesible */
+        <div
+          className={styles.modalOverlayWrapper}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Foto ampliada"
+        >
+          {/* Fondo clickeable como button */}
+          <button
+            className={styles.modalOverlay}
+            onClick={() => dispatch({ type: 'CLOSE' })}
+            aria-label="Cerrar foto"
+            type="button"
+          />
+
           {posts.length > 1 && (
-            <button className={styles.modalPrev} onClick={handlePrev}>
+            <button className={styles.modalPrev} onClick={handlePrev} aria-label="Foto anterior">
               &lt;
             </button>
           )}
 
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.modalClose} onClick={() => setSelectedIndex(null)}>
+          <div className={styles.modalContent}>
+            <button
+              className={styles.modalClose}
+              onClick={() => dispatch({ type: 'CLOSE' })}
+              aria-label="Cerrar"
+            >
               ✕
             </button>
             <img
               src={selectedPost.url}
-              alt={selectedPost.descripcion}
+              alt={selectedPost.descripcion || 'Foto ampliada'}
               className={styles.modalImg}
             />
             <div className={styles.modalFooter}>
@@ -94,7 +139,7 @@ export default function FeedPosts() {
           </div>
 
           {posts.length > 1 && (
-            <button className={styles.modalNext} onClick={handleNext}>
+            <button className={styles.modalNext} onClick={handleNext} aria-label="Foto siguiente">
               &gt;
             </button>
           )}

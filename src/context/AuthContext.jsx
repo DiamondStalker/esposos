@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import {
   signInWithPopup,
   signInWithRedirect,
@@ -6,34 +6,54 @@ import {
   signOut,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
-import data from '../data/mesesaurios.json';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db, googleProvider } from '../firebase';
 
 const AuthContext = createContext();
 
+function authReducer(state, action) {
+  switch (action.type) {
+    case 'SET_USER':
+      return { ...state, user: action.user, loading: false, accessDenied: false };
+    case 'ACCESS_DENIED':
+      return { ...state, user: null, loading: false, accessDenied: true };
+    case 'SIGNED_OUT':
+      return { ...state, user: null, loading: false };
+    default:
+      return state;
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [accessDenied, setAccessDenied] = useState(false);
+  const [state, dispatch] = useReducer(authReducer, {
+    user: null,
+    loading: true,
+    accessDenied: false,
+  });
 
   useEffect(() => {
-    // Manejar resultado de redirect al cargar la página
     getRedirectResult(auth).catch(() => {});
 
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        if (data.whitelist.includes(currentUser.email)) {
-          setUser(currentUser);
-          setAccessDenied(false);
-        } else {
-          signOut(auth);
-          setUser(null);
-          setAccessDenied(true);
+        try {
+          // Leer whitelist desde Firestore — nunca en el código
+          const whitelistDoc = await getDoc(doc(db, 'config', 'whitelist'));
+          const allowedEmails = whitelistDoc.exists() ? whitelistDoc.data().emails || [] : [];
+
+          if (allowedEmails.includes(currentUser.email)) {
+            dispatch({ type: 'SET_USER', user: currentUser });
+          } else {
+            await signOut(auth);
+            dispatch({ type: 'ACCESS_DENIED' });
+          }
+        } catch {
+          await signOut(auth);
+          dispatch({ type: 'ACCESS_DENIED' });
         }
       } else {
-        setUser(null);
+        dispatch({ type: 'SIGNED_OUT' });
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -41,8 +61,7 @@ export function AuthProvider({ children }) {
 
   const loginWithGoogle = async () => {
     try {
-      setAccessDenied(false);
-      // Intentar popup primero, si falla usar redirect
+      dispatch({ type: 'ACCESS_DENIED' });
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
@@ -56,14 +75,22 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth);
-      setUser(null);
+      dispatch({ type: 'SIGNED_OUT' });
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, accessDenied, loginWithGoogle, logout }}>
+    <AuthContext.Provider
+      value={{
+        user: state.user,
+        loading: state.loading,
+        accessDenied: state.accessDenied,
+        loginWithGoogle,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -37,7 +37,6 @@ function reducer(state, action) {
   }
 }
 
-// Cámara instantánea estilo Instax/Polaroid
 const InstaxIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -50,16 +49,11 @@ const InstaxIcon = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    {/* Cuerpo de la cámara */}
     <rect x="2" y="6" width="20" height="14" rx="2" ry="2" fill="none" />
-    {/* Lente */}
     <circle cx="12" cy="13" r="3.5" />
     <circle cx="12" cy="13" r="1.5" strokeWidth="1" />
-    {/* Flash rectangular arriba */}
     <rect x="6" y="3" width="5" height="3" rx="1" />
-    {/* Visor */}
     <rect x="15" y="3" width="3" height="3" rx="0.5" />
-    {/* Botón disparador */}
     <circle cx="18.5" cy="9" r="0.8" fill="white" />
   </svg>
 );
@@ -112,25 +106,47 @@ export default function SubirFoto() {
         className={styles.fab}
         onClick={() => dispatch({ type: 'TOGGLE' })}
         title="Subir foto"
+        aria-label="Subir foto"
       >
         <InstaxIcon />
       </button>
 
       {open && (
-        <div className={styles.overlay} onClick={() => dispatch({ type: 'TOGGLE' })}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.close} onClick={() => dispatch({ type: 'TOGGLE' })}>
+        /* Overlay como button para accesibilidad */
+        <div
+          className={styles.overlayWrapper}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Subir foto"
+        >
+          <button
+            className={styles.overlay}
+            onClick={() => dispatch({ type: 'TOGGLE' })}
+            aria-label="Cerrar modal"
+            type="button"
+          />
+          <div className={styles.modal}>
+            <button
+              className={styles.close}
+              onClick={() => dispatch({ type: 'TOGGLE' })}
+              aria-label="Cerrar"
+            >
               ✕
             </button>
             <h2 className={styles.title}>📸 Subir foto</h2>
 
-            <div className={styles.previewArea} onClick={() => fileRef.current.click()}>
+            <button
+              className={styles.previewArea}
+              onClick={() => fileRef.current.click()}
+              aria-label="Seleccionar imagen"
+              type="button"
+            >
               {preview ? (
-                <img src={preview} alt="preview" className={styles.preview} />
+                <img src={preview} alt="Vista previa" className={styles.preview} />
               ) : (
                 <span className={styles.previewPlaceholder}>Toca para elegir una foto</span>
               )}
-            </div>
+            </button>
             <input
               ref={fileRef}
               type="file"
@@ -147,7 +163,7 @@ export default function SubirFoto() {
               rows={3}
             />
 
-            <div className={styles.tagGroup}>
+            <div className={styles.tagGroup} role="radiogroup" aria-label="Tipo de foto">
               <label className={`${styles.tagOption} ${tag === 'post' ? styles.tagActive : ''}`}>
                 <input
                   type="radio"

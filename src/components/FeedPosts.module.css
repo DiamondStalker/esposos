@@ -26,6 +26,9 @@
   flex-direction: column;
   gap: 12px;
   padding-right: 4px;
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
 }
 
 .feedList::-webkit-scrollbar {
@@ -44,7 +47,6 @@
 
 /* ── Item del feed ── */
 .feedItem {
-  cursor: pointer;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -58,6 +60,15 @@
 .feedItem:hover {
   transform: scale(1.02);
   box-shadow: 0 4px 16px rgba(192, 57, 107, 0.15);
+}
+
+.feedItemBtn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
 .feedImg {
@@ -84,19 +95,31 @@
   padding: 40px 20px;
 }
 
-/* ── Modal lightbox ── */
-.modalOverlay {
+/* ── Modal wrapper ── */
+.modalOverlayWrapper {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.85);
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
+}
+
+/* ── Overlay fondo como button ── */
+.modalOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 /* ── Flechas fuera del modal ── */
@@ -120,6 +143,8 @@
     transform 0.2s;
   padding: 0;
   line-height: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .modalPrev:hover,
@@ -139,6 +164,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
+  z-index: 1;
 }
 
 /* ── Botón cerrar ── */

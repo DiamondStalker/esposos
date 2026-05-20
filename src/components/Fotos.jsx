@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
 import Carousel from 'react-bootstrap/Carousel';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
@@ -7,30 +7,33 @@ import styles from './Fotos.module.css';
 import config from '../config';
 import marco from '../assets/marco.png';
 
+// ── Reducer typewriter — un solo TICK por ciclo ──
+function twReducer(state, action) {
+  if (action.type !== 'TICK') return state;
+  const { text } = action;
+  const { displayed, deleting } = state;
+
+  if (!deleting && displayed.length < text.length) {
+    return { displayed: text.slice(0, displayed.length + 1), deleting: false };
+  }
+  if (!deleting && displayed.length === text.length) {
+    return { displayed, deleting: true };
+  }
+  if (deleting && displayed.length > 0) {
+    return { displayed: displayed.slice(0, -1), deleting: true };
+  }
+  // deleting && displayed.length === 0 → reset
+  return { displayed: '', deleting: false };
+}
+
 function Typewriter({ text, speed = 100, deleteSpeed = 60, pauseAfter = 1500 }) {
-  const [displayed, setDisplayed] = useState('');
-  const [deleting, setDeleting] = useState(false);
-  const indexRef = useRef(0);
+  const [twState, twDispatch] = useReducer(twReducer, { displayed: '', deleting: false });
+  const { displayed, deleting } = twState;
 
   useEffect(() => {
-    let timeout;
-
-    if (!deleting && indexRef.current < text.length) {
-      timeout = setTimeout(() => {
-        setDisplayed(text.slice(0, indexRef.current + 1));
-        indexRef.current += 1;
-      }, speed);
-    } else if (!deleting && indexRef.current === text.length) {
-      timeout = setTimeout(() => setDeleting(true), pauseAfter);
-    } else if (deleting && displayed.length > 0) {
-      timeout = setTimeout(() => {
-        setDisplayed((prev) => prev.slice(0, -1));
-      }, deleteSpeed);
-    } else if (deleting && displayed.length === 0) {
-      indexRef.current = 0;
-      setDeleting(false);
-    }
-
+    const atEnd = !deleting && displayed.length === text.length;
+    const delay = atEnd ? pauseAfter : deleting ? deleteSpeed : speed;
+    const timeout = setTimeout(() => twDispatch({ type: 'TICK', text }), delay);
     return () => clearTimeout(timeout);
   }, [displayed, deleting, text, speed, deleteSpeed, pauseAfter]);
 
@@ -49,23 +52,18 @@ export default function Fotos() {
   const [remoteImages, setRemoteImages] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Cargar fotos principales desde Firestore
   useEffect(() => {
     const q = query(
       collection(db, 'fotos'),
       where('tag', '==', 'principal'),
       orderBy('fecha', 'desc')
     );
-
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setRemoteImages(data);
+      setRemoteImages(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Usar fotos de Firestore si hay, si no usar las locales
   const useRemote = remoteImages.length > 0;
   const totalImages = useRemote ? remoteImages.length : localImages.length;
 
@@ -77,7 +75,7 @@ export default function Fotos() {
       <h4>{config.textos.tituloCarrusel}</h4>
 
       <div className={styles.carouselOuter}>
-        <button className={styles.carouselBtn} onClick={handlePrev}>
+        <button className={styles.carouselBtn} onClick={handlePrev} aria-label="Foto anterior">
           &lt;
         </button>
 
@@ -127,7 +125,7 @@ export default function Fotos() {
           </div>
         </div>
 
-        <button className={styles.carouselBtn} onClick={handleNext}>
+        <button className={styles.carouselBtn} onClick={handleNext} aria-label="Foto siguiente">
           &gt;
         </button>
       </div>
