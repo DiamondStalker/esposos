@@ -6,6 +6,7 @@ import Celebracion from './components/Celebracion';
 import Login from './components/Login';
 import FeedPosts from './components/FeedPosts';
 import SubirFoto from './components/SubirFoto';
+import CalendarioWidget from './components/CalendarioWidget';
 import { useAuth } from './context/AuthContext';
 import data from './data/mesesaurios.json';
 
@@ -183,10 +184,8 @@ function MainApp() {
     <div className={styles.appContainer}>
       <Celebracion activa={celebracionActiva} />
 
-      {/* Botón flotante para subir fotos */}
       <SubirFoto />
 
-      {/* Botón logout fijo en esquina superior derecha */}
       <div className={styles.logoutWrapper}>
         <button className={styles.logoutBtn} onClick={logout}>
           👤 {user?.displayName} · Cerrar sesión
@@ -230,6 +229,7 @@ function MainApp() {
               style={{ borderRadius: '12px', overflow: 'hidden' }}
             />
           </div>
+          <CalendarioWidget />
         </aside>
 
         <main className={styles.colCenter}>
