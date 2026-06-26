@@ -41,7 +41,9 @@
   text-decoration: none;
   font-size: 0.9rem;
   font-family: 'Georgia', serif;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 
 .btnPrimary:hover {

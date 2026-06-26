@@ -30,7 +30,9 @@ export default function CalendarioWidget() {
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>🗓️ Nuestras Fechas</h3>
-      <p className={styles.desc}>Suscríbete para recibir nuestras fechas especiales en tu calendario.</p>
+      <p className={styles.desc}>
+        Suscríbete para recibir nuestras fechas especiales en tu calendario.
+      </p>
       <div className={styles.btnGroup}>
         <a
           href={CALENDAR_ICS}

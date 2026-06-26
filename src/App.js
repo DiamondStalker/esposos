@@ -201,7 +201,7 @@ function MainApp() {
             <p>
               Estás celebrando <strong>{monthsTogether} meses</strong> juntos.
             </p>
-            {daysUntilNext === 0 ? (
+            {esDia26 ? (
               <p className={styles.popupCountdown}>🎉 {fraseDelDia}</p>
             ) : (
               <p className={styles.popupCountdown}>
