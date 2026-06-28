@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './CalendarioWidget.module.css';
 
 const CALENDAR_ICS =
-  'https://calendar.google.com/calendar/ical/b3527b5a7d30d4a656e35cb147902c18a7dec24ca279edf3360446a137a32410%40group.calendar.google.com/public/basic.ics';
+  'https://calendar.google.com/calendar/ical/b3527b5a7d30d4a656e35cb147902c18a7dec24ca279edf3360446a137a32410%40group.calendar.google.com/public/full.ics';
 
 const CALENDAR_HTML =
   'https://calendar.google.com/calendar/r?cid=b3527b5a7d30d4a656e35cb147902c18a7dec24ca279edf3360446a137a32410%40group.calendar.google.com';
