@@ -3,7 +3,6 @@
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   padding: 16px;
-  margin-top: 16px;
   text-align: center;
 }
 
@@ -12,14 +11,128 @@
   font-size: 3.8rem;
   font-weight: normal;
   color: #c0396b;
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
 }
 
+/* ── Cuadrícula del calendario ── */
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.calHeader {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #c0396b;
+  padding: 4px 0 6px;
+  text-align: center;
+}
+
+.calDayLabel {
+  font-size: 0.65rem;
+  color: #c0396b;
+  opacity: 0.6;
+  text-align: center;
+  padding-bottom: 2px;
+  font-weight: 600;
+}
+
+.calCell {
+  position: relative;
+  font-size: 0.7rem;
+  color: #800000;
+  text-align: center;
+  padding: 3px 1px;
+  border-radius: 6px;
+  line-height: 1.4;
+  min-height: 22px;
+  cursor: default;
+}
+
+.calToday {
+  background-color: #c0396b;
+  color: white;
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+.calEvent {
+  background-color: #ffe0ea;
+  font-weight: 600;
+}
+
+.calToday.calEvent {
+  background-color: #c0396b;
+  color: white;
+}
+
+.calDot {
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
+  background-color: #c0396b;
+  border-radius: 50%;
+}
+
+.calToday .calDot {
+  background-color: white;
+}
+
+/* ── Estado de carga ── */
+.calStatus {
+  font-size: 0.75rem;
+  color: #c0396b;
+  opacity: 0.6;
+  margin: 4px 0 8px;
+}
+
+/* ── Lista de eventos del mes ── */
+.eventList {
+  list-style: none;
+  margin: 0 0 12px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.eventItem {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: #fff0f3;
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.eventDay {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #c0396b;
+  min-width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.eventTitle {
+  font-size: 0.7rem;
+  color: #800000;
+  line-height: 1.3;
+}
+
+/* ── Descripción y botones ── */
 .desc {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #800000;
   opacity: 0.8;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   line-height: 1.4;
 }
 

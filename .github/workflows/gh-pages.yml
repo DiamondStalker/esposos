@@ -41,6 +41,7 @@ jobs:
           REACT_APP_CLOUDINARY_CLOUD_NAME: ${{ secrets.REACT_APP_CLOUDINARY_CLOUD_NAME }}
           REACT_APP_CLOUDINARY_UPLOAD_PRESET: ${{ secrets.REACT_APP_CLOUDINARY_UPLOAD_PRESET }}
           REACT_APP_ALLOWED_EMAILS: ${{ secrets.REACT_APP_ALLOWED_EMAILS }}
+          REACT_APP_DIVOON_URL: https://divoon.onrender.com
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
