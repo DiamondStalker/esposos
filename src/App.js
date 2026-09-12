@@ -7,8 +7,12 @@ import Login from './components/Login';
 import FeedPosts from './components/FeedPosts';
 import SubirFoto from './components/SubirFoto';
 import CalendarioWidget from './components/CalendarioWidget';
+import SushiGoWidget from './components/SushiGoWidget';
+import SushiGoCierreModal from './components/SushiGoCierreModal';
 import { useAuth } from './context/AuthContext';
 import data from './data/mesesaurios.json';
+
+const DIVOON_URL = process.env.REACT_APP_DIVOON_URL;
 
 const initialState = {
   monthsTogether: 0,
@@ -17,6 +21,7 @@ const initialState = {
   esDia26: false,
   celebracionActiva: false,
   fraseDelDia: '',
+  showSushiModal: false,
   poemaDelDia: (() => {
     const randomIndex = Math.floor(Math.random() * data.poemas.length);
     return data.poemas[randomIndex];
@@ -34,9 +39,17 @@ function reducer(state, action) {
         fraseDelDia: action.fraseDelDia,
       };
     case 'ACCEPT_POPUP':
-      return { ...state, showPopup: false, celebracionActiva: action.esDia26 };
+      return {
+        ...state,
+        showPopup: false,
+        celebracionActiva: action.esDia26,
+        // Modal SushiGO aparece al mismo tiempo que la celebración
+        showSushiModal: action.esDia26 && !!DIVOON_URL,
+      };
     case 'STOP_CELEBRACION':
       return { ...state, celebracionActiva: false };
+    case 'CLOSE_SUSHI_MODAL':
+      return { ...state, showSushiModal: false };
     default:
       return state;
   }
@@ -52,6 +65,7 @@ function MainApp() {
     celebracionActiva,
     fraseDelDia,
     poemaDelDia,
+    showSushiModal,
   } = state;
 
   const { user, logout } = useAuth();
@@ -159,6 +173,7 @@ function MainApp() {
       controllerRef.current.play();
     }
     if (esDia26) {
+      // Celebración dura 7s
       setTimeout(() => dispatch({ type: 'STOP_CELEBRACION' }), 7000);
     }
   };
@@ -183,6 +198,11 @@ function MainApp() {
   return (
     <div className={styles.appContainer}>
       <Celebracion activa={celebracionActiva} />
+
+      {/* Modal de cierre SushiGO — aparece tras la celebración del día 26 */}
+      {showSushiModal && (
+        <SushiGoCierreModal onClose={() => dispatch({ type: 'CLOSE_SUSHI_MODAL' })} />
+      )}
 
       <SubirFoto />
 
@@ -221,17 +241,13 @@ function MainApp() {
       </header>
 
       <div className={styles.layout}>
-        <aside className={styles.colLeft}>
-          <div className={styles.widgetSpotify}>
-            <h3 className={styles.widgetTitle}>🎵 Nuestra Música</h3>
-            <div
-              id="spotify-embed-container"
-              style={{ borderRadius: '12px', overflow: 'hidden' }}
-            />
-          </div>
+        {/* Col 1: Partidas del mes + Calendario */}
+        <aside className={styles.colSide}>
+          <SushiGoWidget />
           <CalendarioWidget />
         </aside>
 
+        {/* Col 2: Nuestras Aventuras */}
         <main className={styles.colCenter}>
           <section className={styles.content}>
             <Fotos />
@@ -246,8 +262,20 @@ function MainApp() {
           </section>
         </main>
 
-        <aside className={styles.colRight}>
+        {/* Col 3: Nuestros Momentos */}
+        <aside className={styles.colSide}>
           <FeedPosts />
+        </aside>
+
+        {/* Col 4: Nuestra Música */}
+        <aside className={styles.colSide}>
+          <div className={styles.widgetSpotify}>
+            <h3 className={styles.widgetTitle}>🎵 Nuestra Música</h3>
+            <div
+              id="spotify-embed-container"
+              style={{ borderRadius: '12px', overflow: 'hidden' }}
+            />
+          </div>
         </aside>
       </div>
 

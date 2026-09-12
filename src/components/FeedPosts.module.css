@@ -7,6 +7,7 @@
   max-height: 820px;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .feedTitle {
@@ -21,6 +22,7 @@
 /* ── Lista de posts con scroll ── */
 .feedList {
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
   display: flex;
   flex-direction: column;

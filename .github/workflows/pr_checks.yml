@@ -50,3 +50,5 @@ jobs:
 
       - name: Build check
         run: npm run build
+        env:
+          REACT_APP_DIVOON_URL: ${{ secrets.REACT_APP_DIVOON_URL }}

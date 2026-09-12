@@ -24,7 +24,7 @@
   margin-top: 10px;
 }
 
-/* ── Layout 3 columnas ── */
+/* ── Layout 4 columnas ── */
 .layout {
   display: flex;
   flex-direction: row;
@@ -36,14 +36,18 @@
   gap: 24px;
 }
 
-.colLeft,
-.colRight {
-  flex: 0 0 25%;
+/* Columnas laterales: 3 iguales ocupan ~20% cada una */
+.colSide {
+  flex: 0 0 20%;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+/* Columna central: ocupa el resto (~40%) */
 .colCenter {
-  flex: 0 0 50%;
+  flex: 1 1 0;
   min-width: 0;
 }
 
@@ -93,7 +97,7 @@
   text-align: center;
 }
 
-/* ── Logout — fijo a la altura del header ── */
+/* ── Logout ── */
 .logoutWrapper {
   position: fixed;
   top: 20px;
@@ -195,12 +199,13 @@
     align-items: center;
     padding: 0 16px 40px;
   }
-  .colLeft,
-  .colRight,
+
+  .colSide,
   .colCenter {
     flex: 0 0 100%;
     width: 100%;
   }
+
   .logoutWrapper {
     right: 16px;
   }
