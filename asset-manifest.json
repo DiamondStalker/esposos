@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/esposos/static/css/main.6894c0bf.css",
-    "main.js": "/esposos/static/js/main.4fcf8b49.js",
+    "main.css": "/esposos/static/css/main.1b7f9f6b.css",
+    "main.js": "/esposos/static/js/main.954ef5c5.js",
     "static/media/Teamo.png": "/esposos/static/media/Teamo.fd8a540e5c79fb9bcb77.png",
     "static/media/Final Gatutu.png": "/esposos/static/media/Final Gatutu.0c6f452845921ef5ad50.png",
     "static/media/marco.png": "/esposos/static/media/marco.063d9c926d6f24bef624.png",
@@ -11,11 +11,11 @@
     "static/media/Imagen de WhatsApp 2024-09-03 a las 18.19.37_897ed21a.jpg": "/esposos/static/media/Imagen de WhatsApp 2024-09-03 a las 18.19.37_897ed21a.7bbc4331a6d0a069d83e.jpg",
     "static/media/adeacc67-a4e4-48a4-8bc3-a2f508d1849c.jpeg": "/esposos/static/media/adeacc67-a4e4-48a4-8bc3-a2f508d1849c.27668a64f09fceb01eeb.jpeg",
     "index.html": "/esposos/index.html",
-    "main.6894c0bf.css.map": "/esposos/static/css/main.6894c0bf.css.map",
-    "main.4fcf8b49.js.map": "/esposos/static/js/main.4fcf8b49.js.map"
+    "main.1b7f9f6b.css.map": "/esposos/static/css/main.1b7f9f6b.css.map",
+    "main.954ef5c5.js.map": "/esposos/static/js/main.954ef5c5.js.map"
   },
   "entrypoints": [
-    "static/css/main.6894c0bf.css",
-    "static/js/main.4fcf8b49.js"
+    "static/css/main.1b7f9f6b.css",
+    "static/js/main.954ef5c5.js"
   ]
 }
