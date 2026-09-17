@@ -5,6 +5,7 @@
   align-items: center;
   min-height: 100vh;
   padding-top: 20px;
+  padding-bottom: 88px; /* espacio para el GooeyNav fijo en la parte inferior */
   box-sizing: border-box;
 }
 
@@ -121,6 +122,26 @@
   background-color: #fff0f3;
 }
 
+/* Texto completo: visible en desktop */
+.logoutFull {
+  display: inline;
+}
+
+/* Iniciales: ocultas en desktop, visibles en móvil */
+.logoutShort {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .logoutFull {
+    display: none;
+  }
+
+  .logoutShort {
+    display: inline;
+  }
+}
+
 /* ── Footer ── */
 .footer {
   margin-top: 20px;
@@ -194,6 +215,10 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
+  .appContainer {
+    padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px));
+  }
+
   .layout {
     flex-direction: column;
     align-items: center;

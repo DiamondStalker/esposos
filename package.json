@@ -1,6 +1,6 @@
 {
   "name": "pagina-romantica",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "homepage": "https://DiamondStalker.github.io/esposos",
   "private": true,
   "dependencies": {
@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.3",
     "firebase": "^12.13.0",
+    "framer-motion": "^13.4.0",
     "gh-pages": "^6.1.1",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.4",
