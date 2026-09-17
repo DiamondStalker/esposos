@@ -1,0 +1,86 @@
+/* ── Contenedor principal (fixed, centrado en la parte inferior) ── */
+.nav {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  width: 260px;
+  height: 52px;
+}
+
+/* En móvil: sube el nav por encima del chrome del browser */
+@media (max-width: 900px) {
+  .nav {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* SVG del filtro: invisible, solo define el efecto */
+.svgFilter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── Capa filtrada (fondo + blob) ── */
+.gooLayer {
+  position: absolute;
+  inset: 0;
+  filter: url(#goo-nav);
+  pointer-events: none;
+}
+
+/* Fondo de la barra de navegación */
+.navBg {
+  position: absolute;
+  inset: 0;
+  background: #fff7f7;
+  border-radius: 999px;
+  box-shadow:
+    0 4px 20px rgba(192, 57, 107, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* Blob activo que se desliza entre los ítems */
+.indicator {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 120px; /* (260px / 2) − 10px de márgenes = 120px */
+  height: 42px; /* 52px − 10px */
+  background: #c0396b;
+  border-radius: 999px;
+  will-change: transform;
+}
+
+/* ── Capa de etiquetas (encima del filtro, sin blur) ── */
+.labelRow {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #c0396b;
+  transition: color 0.25s ease;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #c0396b;
+  outline-offset: 3px;
+}
+
+.btnActive {
+  color: #ffffff;
+}

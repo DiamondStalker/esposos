@@ -9,6 +9,8 @@ import SubirFoto from './components/SubirFoto';
 import CalendarioWidget from './components/CalendarioWidget';
 import SushiGoWidget from './components/SushiGoWidget';
 import SushiGoCierreModal from './components/SushiGoCierreModal';
+import GooeyNav from './components/GooeyNav';
+import VistaJuegos from './components/VistaJuegos';
 import { useAuth } from './context/AuthContext';
 import data from './data/mesesaurios.json';
 
@@ -22,6 +24,7 @@ const initialState = {
   celebracionActiva: false,
   fraseDelDia: '',
   showSushiModal: false,
+  view: 'inicio', // 'inicio' | 'juegos'
   poemaDelDia: (() => {
     const randomIndex = Math.floor(Math.random() * data.poemas.length);
     return data.poemas[randomIndex];
@@ -50,6 +53,8 @@ function reducer(state, action) {
       return { ...state, celebracionActiva: false };
     case 'CLOSE_SUSHI_MODAL':
       return { ...state, showSushiModal: false };
+    case 'SET_VIEW':
+      return { ...state, view: action.view };
     default:
       return state;
   }
@@ -66,6 +71,7 @@ function MainApp() {
     fraseDelDia,
     poemaDelDia,
     showSushiModal,
+    view,
   } = state;
 
   const { user, logout } = useAuth();
@@ -195,8 +201,17 @@ function MainApp() {
     return () => window.removeEventListener('mousemove', createHeart);
   }, []);
 
+  // Vuelve al tope de la página al cambiar de vista
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [view]);
+
   return (
     <div className={styles.appContainer}>
+      {/* ── Navegación gooey (siempre visible) ── */}
+      <GooeyNav activeView={view} onNavigate={(v) => dispatch({ type: 'SET_VIEW', view: v })} />
+
+      {/* ── Overlays globales (siempre) ── */}
       <Celebracion activa={celebracionActiva} />
 
       {/* Modal de cierre SushiGO — aparece tras la celebración del día 26 */}
@@ -204,84 +219,103 @@ function MainApp() {
         <SushiGoCierreModal onClose={() => dispatch({ type: 'CLOSE_SUSHI_MODAL' })} />
       )}
 
-      <SubirFoto />
-
+      {/* ── Botón de logout (siempre) ── */}
       <div className={styles.logoutWrapper}>
         <button className={styles.logoutBtn} onClick={logout}>
-          👤 {user?.displayName} · Cerrar sesión
+          <span className={styles.logoutFull}>👤 {user?.displayName} · Cerrar sesión</span>
+          <span className={styles.logoutShort}>
+            👤{' '}
+            {user?.displayName
+              ?.split(' ')
+              .map((n) => n[0])
+              .join('')}
+          </span>
         </button>
       </div>
 
-      {showPopup && (
+      {/* ── Vista Inicio (sin cambios) ── */}
+      {view === 'inicio' && (
         <>
-          <div className="heart" />
-          <div className={styles.overlay} />
-          <div className={styles.popup}>
-            <h2>¡Bienvenido!</h2>
-            <p>
-              Estás celebrando <strong>{monthsTogether} meses</strong> juntos.
-            </p>
-            {esDia26 ? (
-              <p className={styles.popupCountdown}>🎉 {fraseDelDia}</p>
-            ) : (
-              <p className={styles.popupCountdown}>
-                Faltan <strong>{daysUntilNext} días</strong> para el próximo mes ❤️
-              </p>
-            )}
-            <button onClick={handlePopupAccept}>Aceptar</button>
+          <SubirFoto />
+
+          {showPopup && (
+            <>
+              <div className="heart" />
+              <div className={styles.overlay} />
+              <div className={styles.popup}>
+                <h2>¡Bienvenido!</h2>
+                <p>
+                  Estás celebrando <strong>{monthsTogether} meses</strong> juntos.
+                </p>
+                {esDia26 ? (
+                  <p className={styles.popupCountdown}>🎉 {fraseDelDia}</p>
+                ) : (
+                  <p className={styles.popupCountdown}>
+                    Faltan <strong>{daysUntilNext} días</strong> para el próximo mes ❤️
+                  </p>
+                )}
+                <button onClick={handlePopupAccept}>Aceptar</button>
+              </div>
+            </>
+          )}
+
+          <header className={styles.header}>
+            <h1 style={{ fontFamily: 'Miss Fajardose, cursive' }}>
+              ¡Feliz {monthsTogether} Meses, Mi Amor!
+            </h1>
+            <p>Gracias por hacerme la persona más feliz del mundo.</p>
+          </header>
+
+          <div className={styles.layout}>
+            {/* Col 1: Partidas del mes + Calendario */}
+            <aside className={styles.colSide}>
+              <SushiGoWidget />
+              <CalendarioWidget />
+            </aside>
+
+            {/* Col 2: Nuestras Aventuras */}
+            <main className={styles.colCenter}>
+              <section className={styles.content}>
+                <Fotos />
+                <p className={styles.message}>
+                  {poemaDelDia.split('\n').map((linea) => (
+                    <span key={linea}>
+                      {linea}
+                      <br />
+                    </span>
+                  ))}
+                </p>
+              </section>
+            </main>
+
+            {/* Col 3: Nuestros Momentos */}
+            <aside className={styles.colSide}>
+              <FeedPosts />
+            </aside>
+
+            {/* Col 4: Nuestra Música */}
+            <aside className={styles.colSide}>
+              <div className={styles.widgetSpotify}>
+                <h3 className={styles.widgetTitle}>🎵 Nuestra Música</h3>
+                <div
+                  id="spotify-embed-container"
+                  style={{ borderRadius: '12px', overflow: 'hidden' }}
+                />
+              </div>
+            </aside>
           </div>
+
+          <footer
+            className={styles.footer}
+            style={{ fontFamily: 'Edu AU VIC WA NT Dots, cursive' }}
+          >
+            <p>Para siempre, con amor ❤️ Pingui</p>
+          </footer>
         </>
       )}
 
-      <header className={styles.header}>
-        <h1 style={{ fontFamily: 'Miss Fajardose, cursive' }}>
-          ¡Feliz {monthsTogether} Meses, Mi Amor!
-        </h1>
-        <p>Gracias por hacerme la persona más feliz del mundo.</p>
-      </header>
-
-      <div className={styles.layout}>
-        {/* Col 1: Partidas del mes + Calendario */}
-        <aside className={styles.colSide}>
-          <SushiGoWidget />
-          <CalendarioWidget />
-        </aside>
-
-        {/* Col 2: Nuestras Aventuras */}
-        <main className={styles.colCenter}>
-          <section className={styles.content}>
-            <Fotos />
-            <p className={styles.message}>
-              {poemaDelDia.split('\n').map((linea) => (
-                <span key={linea}>
-                  {linea}
-                  <br />
-                </span>
-              ))}
-            </p>
-          </section>
-        </main>
-
-        {/* Col 3: Nuestros Momentos */}
-        <aside className={styles.colSide}>
-          <FeedPosts />
-        </aside>
-
-        {/* Col 4: Nuestra Música */}
-        <aside className={styles.colSide}>
-          <div className={styles.widgetSpotify}>
-            <h3 className={styles.widgetTitle}>🎵 Nuestra Música</h3>
-            <div
-              id="spotify-embed-container"
-              style={{ borderRadius: '12px', overflow: 'hidden' }}
-            />
-          </div>
-        </aside>
-      </div>
-
-      <footer className={styles.footer} style={{ fontFamily: 'Edu AU VIC WA NT Dots, cursive' }}>
-        <p>Para siempre, con amor ❤️ Pingui</p>
-      </footer>
+      {/* ── Vista Juegos ── */}
+      {view === 'juegos' && <VistaJuegos />}
     </div>
   );
 }
