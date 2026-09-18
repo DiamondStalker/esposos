@@ -19,12 +19,10 @@ const REDIRECT_URI =
   process.env.REACT_APP_GOOGLE_REDIRECT_URI || `${window.location.origin}/oauth-callback.html`;
 
 // ── localStorage para el access token de Calendar ───────────────────────────
-// Se acepta este trade-off conscientemente: es un token de corta vida (~1h),
-// la app es personal/privada y no tiene XSS risk relevante. El refresh token
-// nunca sale del servidor (Divoon). // react-doctor/auth-token-in-web-storage
+// Trade-off aceptado: token de corta vida (~1h), app personal/privada,
+// el refresh token nunca sale del servidor (Divoon).
 const STORAGE_KEY = 'cal_token';
 
-// eslint-disable-next-line react-doctor/auth-token-in-web-storage
 function readToken() {
   try {
     return localStorage.getItem(STORAGE_KEY) || null;
@@ -32,7 +30,6 @@ function readToken() {
     return null;
   }
 }
-// eslint-disable-next-line react-doctor/auth-token-in-web-storage
 function saveToken(token) {
   try {
     token ? localStorage.setItem(STORAGE_KEY, token) : localStorage.removeItem(STORAGE_KEY);
@@ -178,7 +175,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // ── Mantiene el ref actualizado — dentro de effect para no mutar en render ─
+  // ── Mantiene el ref actualizado dentro de un effect (no durante render) ───
   useEffect(() => {
     initCalendarAuthRef.current = initCalendarAuth;
   }, [initCalendarAuth]);
@@ -214,7 +211,7 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    let cancelled = false; // evita race conditions si el effect se cancela
+    let cancelled = false;
 
     const run = async () => {
       try {
