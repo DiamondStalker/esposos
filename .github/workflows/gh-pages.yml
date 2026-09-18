@@ -42,6 +42,7 @@ jobs:
           REACT_APP_CLOUDINARY_UPLOAD_PRESET: ${{ secrets.REACT_APP_CLOUDINARY_UPLOAD_PRESET }}
           REACT_APP_ALLOWED_EMAILS: ${{ secrets.REACT_APP_ALLOWED_EMAILS }}
           REACT_APP_DIVOON_URL: ${{ secrets.REACT_APP_DIVOON_URL }}
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

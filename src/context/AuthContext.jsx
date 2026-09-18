@@ -226,7 +226,14 @@ export function AuthProvider({ children }) {
 
   // ── initCalendarAuth ──────────────────────────────────────────────────────
   const initCalendarAuth = useCallback(async (user) => {
-    if (!DIVOON_URL || !CLIENT_ID) return null;
+    if (!DIVOON_URL) return null;
+    if (!CLIENT_ID) {
+      dispatch({
+        type: 'CALENDAR_AUTH_ERROR',
+        message: 'Falta configurar REACT_APP_GOOGLE_CLIENT_ID en este entorno.',
+      });
+      return null;
+    }
     try {
       const code = await openCalendarOAuthPopup();
       const idToken = await user.getIdToken();
