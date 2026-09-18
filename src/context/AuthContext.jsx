@@ -20,7 +20,7 @@ const REDIRECT_URI =
 
 // ── localStorage para el access token de Calendar ───────────────────────────
 // Trade-off aceptado: token de corta vida (~1h), app personal/privada,
-// el refresh token nunca sale del servidor (Divoon).
+// el refresh token nunca sale del servidor (Divoon). NOSONAR intencional.
 const STORAGE_KEY = 'cal_token';
 
 // Valida que el valor sea un string no vacío antes de persistirlo
@@ -30,7 +30,7 @@ function isValidToken(value) {
 
 function readToken() {
   try {
-    return localStorage.getItem(STORAGE_KEY) || null;
+    return localStorage.getItem(STORAGE_KEY) || null; // NOSONAR
   } catch {
     return null;
   }
@@ -38,9 +38,9 @@ function readToken() {
 function saveToken(token) {
   try {
     if (token === null || token === undefined) {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY); // NOSONAR
     } else if (isValidToken(token)) {
-      localStorage.setItem(STORAGE_KEY, token);
+      localStorage.setItem(STORAGE_KEY, token); // NOSONAR
     }
   } catch {}
 }
