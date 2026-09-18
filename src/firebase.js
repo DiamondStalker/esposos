@@ -18,4 +18,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 
+// Scope para poder crear/editar/eliminar eventos en Google Calendar
+googleProvider.addScope('https://www.googleapis.com/auth/calendar');
+
 export default app;

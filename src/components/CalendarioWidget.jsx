@@ -1,13 +1,17 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useCallback, useMemo, useRef } from 'react';
 import styles from './CalendarioWidget.module.css';
+import CalendarioModal from './CalendarioModal';
+import { useAuth } from '../context/AuthContext';
 
-const CALENDAR_ICS =
-  'https://calendar.google.com/calendar/ical/b3527b5a7d30d4a656e35cb147902c18a7dec24ca279edf3360446a137a32410%40group.calendar.google.com/public/full.ics';
+// Autora: Camamore
+
+const CALENDAR_ID =
+  'b3527b5a7d30d4a656e35cb147902c18a7dec24ca279edf3360446a137a32410@group.calendar.google.com';
+const CAL_ID_ENC = encodeURIComponent(CALENDAR_ID);
+const CALENDAR_BASE = `https://www.googleapis.com/calendar/v3/calendars/${CAL_ID_ENC}`;
 
 const CALENDAR_HTML =
   'https://calendar.google.com/calendar/r?cid=b3527b5a7d30d4a656e35cb147902c18a7dec24ca279edf3360446a137a32410%40group.calendar.google.com';
-
-const PROXY = 'https://api.allorigins.win/raw?url=';
 
 const DIAS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
 const MESES = [
@@ -25,30 +29,30 @@ const MESES = [
   'Diciembre',
 ];
 
-// ── Parser ICS mínimo ──
-function parseICS(text) {
-  const events = [];
-  const blocks = text.split('BEGIN:VEVENT');
-  for (let i = 1; i < blocks.length; i++) {
-    const block = blocks[i];
-    const get = (key) => {
-      const match = block.match(new RegExp(`${key}[^:]*:([^\r\n]+)`));
-      return match ? match[1].trim() : '';
-    };
-    const summary = get('SUMMARY');
-    const dtstart = get('DTSTART');
-    if (!dtstart) continue;
+function getEventDay(event) {
+  const dateStr = event.start?.date || event.start?.dateTime?.slice(0, 10);
+  if (!dateStr) return null;
+  return parseInt(dateStr.split('-')[2], 10);
+}
 
-    // Soporta formato fecha completa (20250126T000000Z) y solo fecha (20250126)
-    const dateStr = dtstart.replace(/T.*/, '');
-    const year = parseInt(dateStr.slice(0, 4), 10);
-    const month = parseInt(dateStr.slice(4, 6), 10) - 1;
-    const day = parseInt(dateStr.slice(6, 8), 10);
-    if (isNaN(year) || isNaN(month) || isNaN(day)) continue;
+// Wrapper reutilizable que usa <dialog> nativo con showModal()
+function DialogModal({ titleId, onClose, className, children }) {
+  const ref = useRef(null);
 
-    events.push({ summary, date: new Date(year, month, day) });
-  }
-  return events;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.showModal();
+    const handleClose = () => onClose();
+    el.addEventListener('close', handleClose);
+    return () => el.removeEventListener('close', handleClose);
+  }, [onClose]);
+
+  return (
+    <dialog ref={ref} className={className} aria-labelledby={titleId}>
+      {children}
+    </dialog>
+  );
 }
 
 function calReducer(state, action) {
@@ -59,6 +63,14 @@ function calReducer(state, action) {
       return { ...state, loading: false, events: action.events };
     case 'ERROR':
       return { ...state, loading: false, error: action.message };
+    case 'OPEN_MODAL':
+      return { ...state, modal: action.modal };
+    case 'CLOSE_MODAL':
+      return { ...state, modal: null };
+    case 'DELETING':
+      return { ...state, deletingId: action.id };
+    case 'DELETE_DONE':
+      return { ...state, deletingId: null };
     default:
       return state;
   }
@@ -84,116 +96,174 @@ const CalendarIcon = () => (
 );
 
 export default function CalendarioWidget() {
+  const { accessToken } = useAuth();
+
   const [state, dispatch] = useReducer(calReducer, {
-    loading: true,
+    loading: false,
     events: [],
     error: null,
+    modal: null,
+    deletingId: null,
   });
-  const { loading, events, error } = state;
+  const { loading, events, error, modal, deletingId } = state;
 
-  useEffect(() => {
-    dispatch({ type: 'LOADING' });
-    fetch(`${PROXY}${encodeURIComponent(CALENDAR_ICS)}`)
-      .then((r) => r.text())
-      .then((text) => {
-        const parsed = parseICS(text);
-        dispatch({ type: 'SET_EVENTS', events: parsed });
-      })
-      .catch(() => dispatch({ type: 'ERROR', message: 'No se pudo cargar el calendario.' }));
-  }, []);
-
-  // ── Construir cuadrícula del mes actual ──
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Dom
 
-  // Eventos del mes actual, indexados por día
-  const eventsByDay = {};
-  events.forEach(({ summary, date }) => {
-    if (date.getFullYear() === year && date.getMonth() === month) {
-      const d = date.getDate();
-      if (!eventsByDay[d]) eventsByDay[d] = [];
-      eventsByDay[d].push(summary);
+  const fetchEvents = useCallback(async () => {
+    if (!accessToken) return;
+    dispatch({ type: 'LOADING' });
+
+    const timeMin = new Date(year, month, 1).toISOString();
+    const timeMax = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+    const params = new URLSearchParams({
+      timeMin,
+      timeMax,
+      singleEvents: 'true',
+      orderBy: 'startTime',
+    });
+
+    try {
+      const res = await fetch(`${CALENDAR_BASE}/events?${params}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) {
+        dispatch({
+          type: 'ERROR',
+          message:
+            res.status === 401
+              ? 'Sesión de calendario expirada — vuelve a iniciar sesión.'
+              : `Error ${res.status} al cargar eventos.`,
+        });
+        return;
+      }
+      const json = await res.json();
+      dispatch({ type: 'SET_EVENTS', events: json.items || [] });
+    } catch {
+      dispatch({ type: 'ERROR', message: 'No se pudo cargar el calendario.' });
     }
-  });
+  }, [accessToken, year, month]);
 
-  // Celdas: espacios vacíos iniciales + días
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  const handleDelete = useCallback(
+    async (evento) => {
+      if (!accessToken) return;
+      dispatch({ type: 'DELETING', id: evento.id });
+      try {
+        const res = await fetch(`${CALENDAR_BASE}/events/${evento.id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.ok || res.status === 204) {
+          dispatch({ type: 'DELETE_DONE' });
+          dispatch({ type: 'CLOSE_MODAL' });
+          await fetchEvents();
+        } else {
+          dispatch({ type: 'DELETE_DONE' });
+        }
+      } catch {
+        dispatch({ type: 'DELETE_DONE' });
+      }
+    },
+    [accessToken, fetchEvents]
+  );
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+
+  // Memoizado para no recrear el objeto en cada render
+  const eventsByDay = useMemo(() => {
+    const map = {};
+    events.forEach((event) => {
+      const d = getEventDay(event);
+      if (d === null) return;
+      if (!map[d]) map[d] = [];
+      map[d].push(event);
+    });
+    return map;
+  }, [events]);
+
   const cells = [];
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const handleDayClick = useCallback(
+    (day) => {
+      if (!accessToken) return;
+      const date = new Date(year, month, day);
+      // Se calcula dentro del callback para no depender de eventsByDay (derivado)
+      const dayEvents = events.filter((e) => getEventDay(e) === day);
+      if (dayEvents.length > 0) {
+        dispatch({ type: 'OPEN_MODAL', modal: { mode: 'view', date, day, eventos: dayEvents } });
+      } else {
+        dispatch({ type: 'OPEN_MODAL', modal: { mode: 'create', date } });
+      }
+    },
+    [accessToken, year, month, events]
+  );
+
+  const closeModal = useCallback(() => dispatch({ type: 'CLOSE_MODAL' }), []);
 
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>🗓️ Nuestras Fechas</h3>
 
-      {/* ── Mini calendario ── */}
       <div className={styles.calGrid}>
-        {/* Cabecera mes */}
         <div className={styles.calHeader}>
           {MESES[month]} {year}
         </div>
 
-        {/* Días de la semana */}
         {DIAS.map((d) => (
           <div key={d} className={styles.calDayLabel}>
             {d}
           </div>
         ))}
 
-        {/* Celdas */}
         {cells.map((day, idx) => {
           if (day === null) return <div key={`e-${idx}`} className={styles.calCell} />;
           const isToday = day === today.getDate();
           const hasEvent = !!eventsByDay[day];
-          const eventTitles = eventsByDay[day] ? eventsByDay[day].join(', ') : '';
+          const eventTitles = eventsByDay[day]?.map((e) => e.summary).join(', ') || '';
           return (
-            <div
+            <button
               key={day}
-              className={`${styles.calCell} ${isToday ? styles.calToday : ''} ${hasEvent ? styles.calEvent : ''}`}
-              title={eventTitles || undefined}
+              className={`${styles.calCell} ${styles.calCellBtn} ${isToday ? styles.calToday : ''} ${hasEvent ? styles.calEvent : ''}`}
+              title={eventTitles || (accessToken ? 'Crear evento' : undefined)}
+              onClick={() => handleDayClick(day)}
+              disabled={!accessToken}
+              aria-label={`${day} de ${MESES[month]}${eventTitles ? ` — ${eventTitles}` : ''}`}
             >
               {day}
               {hasEvent && <span className={styles.calDot} />}
-            </div>
+            </button>
           );
         })}
       </div>
 
       {loading && <p className={styles.calStatus}>Cargando eventos...</p>}
       {error && <p className={styles.calStatus}>{error}</p>}
+      {!accessToken && <p className={styles.calStatus}>Inicia sesión para gestionar eventos.</p>}
 
-      {/* Eventos del mes */}
       {!loading && !error && Object.keys(eventsByDay).length > 0 && (
         <ul className={styles.eventList}>
           {Object.entries(eventsByDay)
             .sort((a, b) => Number(a[0]) - Number(b[0]))
-            .map(([day, titles]) =>
-              titles.map((title, i) => (
+            .map(([day, evts]) =>
+              evts.map((ev, i) => (
                 <li key={`${day}-${i}`} className={styles.eventItem}>
                   <span className={styles.eventDay}>{day}</span>
-                  <span className={styles.eventTitle}>{title}</span>
+                  <span className={styles.eventTitle}>{ev.summary}</span>
                 </li>
               ))
             )}
         </ul>
       )}
 
-      <p className={styles.desc}>
-        Suscríbete para recibir nuestras fechas especiales en tu calendario.
-      </p>
       <div className={styles.btnGroup}>
-        <a
-          href={CALENDAR_ICS}
-          className={styles.btnPrimary}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Suscribirse al calendario"
-        >
-          <CalendarIcon />
-          Suscribirse
-        </a>
         <a
           href={CALENDAR_HTML}
           className={styles.btnSecondary}
@@ -201,9 +271,70 @@ export default function CalendarioWidget() {
           rel="noreferrer"
           aria-label="Ver en Google Calendar"
         >
+          <CalendarIcon />
           Ver en Google
         </a>
       </div>
+
+      {/* Modal: ver eventos del día */}
+      {modal?.mode === 'view' && (
+        <DialogModal titleId="view-modal-title" onClose={closeModal} className={styles.viewDialog}>
+          <h4 className={styles.viewTitle} id="view-modal-title">
+            {modal.day} de {MESES[month]}
+          </h4>
+          <ul className={styles.viewList}>
+            {modal.eventos.map((ev) => (
+              <li key={ev.id} className={styles.viewItem}>
+                <span className={styles.viewItemTitle}>{ev.summary}</span>
+                <div className={styles.viewItemActions}>
+                  <button
+                    className={styles.iconBtn}
+                    aria-label={`Editar ${ev.summary}`}
+                    onClick={() =>
+                      dispatch({ type: 'OPEN_MODAL', modal: { mode: 'edit', evento: ev } })
+                    }
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    className={`${styles.iconBtn} ${styles.iconBtnDelete}`}
+                    aria-label={`Eliminar ${ev.summary}`}
+                    disabled={deletingId === ev.id}
+                    onClick={() => handleDelete(ev)}
+                  >
+                    {deletingId === ev.id ? '…' : '🗑️'}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className={styles.viewFooter}>
+            <button
+              className={styles.btnAddEvent}
+              onClick={() =>
+                dispatch({ type: 'OPEN_MODAL', modal: { mode: 'create', date: modal.date } })
+              }
+            >
+              + Agregar evento
+            </button>
+            <button className={styles.btnClose} onClick={closeModal}>
+              Cerrar
+            </button>
+          </div>
+        </DialogModal>
+      )}
+
+      {/* Modal: crear / editar */}
+      {(modal?.mode === 'create' || modal?.mode === 'edit') && (
+        <CalendarioModal
+          mode={modal.mode}
+          date={modal.date}
+          evento={modal.evento}
+          accessToken={accessToken}
+          onClose={closeModal}
+          onSuccess={fetchEvents}
+        />
+      )}
     </div>
   );
 }
