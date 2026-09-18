@@ -19,8 +19,12 @@ const REDIRECT_URI =
   process.env.REACT_APP_GOOGLE_REDIRECT_URI || `${window.location.origin}/oauth-callback.html`;
 
 // ── localStorage para el access token de Calendar ───────────────────────────
+// Se acepta este trade-off conscientemente: es un token de corta vida (~1h),
+// la app es personal/privada y no tiene XSS risk relevante. El refresh token
+// nunca sale del servidor (Divoon). // react-doctor/auth-token-in-web-storage
 const STORAGE_KEY = 'cal_token';
 
+// eslint-disable-next-line react-doctor/auth-token-in-web-storage
 function readToken() {
   try {
     return localStorage.getItem(STORAGE_KEY) || null;
@@ -28,6 +32,7 @@ function readToken() {
     return null;
   }
 }
+// eslint-disable-next-line react-doctor/auth-token-in-web-storage
 function saveToken(token) {
   try {
     token ? localStorage.setItem(STORAGE_KEY, token) : localStorage.removeItem(STORAGE_KEY);
@@ -62,8 +67,6 @@ async function checkWhitelist(currentUser) {
 }
 
 // ── Popup de Google Calendar OAuth ───────────────────────────────────────────
-// Abre una ventana emergente, el usuario autoriza Calendar una sola vez,
-// la ventana manda el código via postMessage y se cierra sola.
 function openCalendarOAuthPopup() {
   return new Promise((resolve, reject) => {
     if (!CLIENT_ID) {
@@ -175,6 +178,11 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // ── Mantiene el ref actualizado — dentro de effect para no mutar en render ─
+  useEffect(() => {
+    initCalendarAuthRef.current = initCalendarAuth;
+  }, [initCalendarAuth]);
+
   // ── refreshCalendarToken ──────────────────────────────────────────────────
   const refreshCalendarToken = useCallback(async () => {
     const user = userRef.current;
@@ -196,11 +204,8 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  initCalendarAuthRef.current = initCalendarAuth;
-
   // ── Silent calendar auth ──────────────────────────────────────────────────
-  // Si hay usuario pero no cal_token, intenta obtener uno desde Divoon
-  // usando el refresh token almacenado — sin popup ni interacción.
+  // Intenta obtener access token desde Divoon sin popup.
   // Si Divoon responde 404 (primera vez), muestra el overlay.
   useEffect(() => {
     if (!state.user || state.accessToken || state.calendarChecked) return;
@@ -209,23 +214,32 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    (async () => {
+    let cancelled = false; // evita race conditions si el effect se cancela
+
+    const run = async () => {
       try {
         const idToken = await state.user.getIdToken();
         const res = await fetch(`${DIVOON_URL}/auth/calendar/token`, {
           headers: { Authorization: `Bearer ${idToken}` },
         });
+        if (cancelled) return;
         if (res.ok) {
           const { accessToken } = await res.json();
+          if (cancelled) return;
           saveToken(accessToken);
           dispatch({ type: 'SET_TOKEN', accessToken });
         } else {
           dispatch({ type: 'CALENDAR_CHECKED' });
         }
       } catch {
-        dispatch({ type: 'CALENDAR_CHECKED' });
+        if (!cancelled) dispatch({ type: 'CALENDAR_CHECKED' });
       }
-    })();
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
   }, [state.user, state.accessToken, state.calendarChecked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const needsCalendarAuth = !!state.user && !state.accessToken && state.calendarChecked;
@@ -262,7 +276,7 @@ export function AuthProvider({ children }) {
   const connectCalendar = useCallback(async () => {
     const user = userRef.current;
     if (!user) return;
-    await initCalendarAuthRef.current(user);
+    await initCalendarAuthRef.current?.(user);
   }, []);
 
   const value = useMemo(
