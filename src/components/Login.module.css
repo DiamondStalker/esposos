@@ -73,3 +73,30 @@
   width: 22px;
   height: 22px;
 }
+
+/* ── Aviso webview (WhatsApp / Instagram / etc.) ── */
+.webviewWarning {
+  background-color: #fff3cd;
+  border: 1px solid #f0c040;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.webviewText {
+  font-size: 0.95rem;
+  color: #7a5800;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.webviewHint {
+  font-size: 0.82rem;
+  color: #7a5800;
+  opacity: 0.75;
+  margin: 0;
+  font-style: italic;
+}
