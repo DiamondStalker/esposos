@@ -15,8 +15,12 @@ const AuthContext = createContext();
 
 const DIVOON_URL = process.env.REACT_APP_DIVOON_URL;
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+// window.location.origin nunca incluye el path — en GitHub Pages el sitio
+// vive bajo /esposos, así que hace falta sumar PUBLIC_URL (que CRA calcula
+// del campo "homepage" del package.json) para armar la URL real del archivo.
 const REDIRECT_URI =
-  process.env.REACT_APP_GOOGLE_REDIRECT_URI || `${window.location.origin}/oauth-callback.html`;
+  process.env.REACT_APP_GOOGLE_REDIRECT_URI ||
+  `${window.location.origin}${process.env.PUBLIC_URL}/oauth-callback.html`;
 
 // ── Token en memoria de módulo ────────────────────────────────────────────────
 // El access token de Calendar (~1h) vive en memoria de módulo, no en Web
