@@ -52,6 +52,23 @@
   cursor: default;
 }
 
+/* Celdas interactivas (cuando hay accessToken) */
+.calCellBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.calCellBtn:hover:not(:disabled) {
+  background-color: #ffe0ea;
+}
+
+.calCellBtn:disabled {
+  cursor: default;
+}
+
 .calToday {
   background-color: #c0396b;
   color: white;
@@ -181,4 +198,127 @@
 
 .btnSecondary:hover {
   background-color: #fff0f3;
+}
+
+/* ── <dialog> nativo para ver eventos del día ── */
+.viewDialog {
+  border: none;
+  padding: 24px 28px;
+  background: #fff7f7;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(192, 57, 107, 0.18);
+  width: 100%;
+  max-width: 360px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.viewDialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.viewTitle {
+  font-family: 'Miss Fajardose', cursive;
+  font-size: 2rem;
+  font-weight: normal;
+  color: #c0396b;
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.viewList {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.viewItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #fff0f3;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.viewItemTitle {
+  font-size: 0.88rem;
+  color: #800000;
+  flex: 1;
+  text-align: left;
+}
+
+.viewItemActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  line-height: 1;
+}
+
+.iconBtn:hover:not(:disabled) {
+  background: #ffe0ea;
+}
+
+.iconBtnDelete:hover:not(:disabled) {
+  background: #ffd0d0;
+}
+
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.viewFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.btnAddEvent {
+  background: #c0396b;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnAddEvent:hover {
+  background: #a02d59;
+}
+
+.btnClose {
+  background: none;
+  border: 1px solid #f0c0cc;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  color: #c0396b;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnClose:hover {
+  background: #fff0f3;
 }
