@@ -111,50 +111,53 @@ export default function CalendarioWidget() {
   const year = today.getFullYear();
   const month = today.getMonth();
 
-  const fetchEvents = useCallback(async (_token = accessToken, _isRetry = false) => {
-    if (!_token) return;
-    dispatch({ type: 'LOADING' });
+  const fetchEvents = useCallback(
+    async (_token = accessToken, _isRetry = false) => {
+      if (!_token) return;
+      dispatch({ type: 'LOADING' });
 
-    const timeMin = new Date(year, month, 1).toISOString();
-    const timeMax = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
-    const params = new URLSearchParams({
-      timeMin,
-      timeMax,
-      singleEvents: 'true',
-      orderBy: 'startTime',
-    });
-
-    try {
-      const res = await fetch(`${CALENDAR_BASE}/events?${params}`, {
-        headers: { Authorization: `Bearer ${_token}` },
+      const timeMin = new Date(year, month, 1).toISOString();
+      const timeMax = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+      const params = new URLSearchParams({
+        timeMin,
+        timeMax,
+        singleEvents: 'true',
+        orderBy: 'startTime',
       });
 
-      if (!res.ok) {
-        if (res.status === 401 && !_isRetry) {
-          // Token expirado → pedir uno nuevo a Divoon y reintentar UNA vez
-          const newToken = await refreshCalendarToken();
-          if (newToken) {
-            await fetchEvents(newToken, true);
-          } else {
-            // Divoon tampoco pudo renovar → el usuario debe iniciar sesión de nuevo
-            clearCalendarToken();
-            dispatch({
-              type: 'ERROR',
-              message: 'Sesión de calendario expirada — vuelve a iniciar sesión.',
-            });
-          }
-        } else {
-          dispatch({ type: 'ERROR', message: `Error ${res.status} al cargar eventos.` });
-        }
-        return;
-      }
+      try {
+        const res = await fetch(`${CALENDAR_BASE}/events?${params}`, {
+          headers: { Authorization: `Bearer ${_token}` },
+        });
 
-      const json = await res.json();
-      dispatch({ type: 'SET_EVENTS', events: json.items || [] });
-    } catch {
-      dispatch({ type: 'ERROR', message: 'No se pudo cargar el calendario.' });
-    }
-  }, [accessToken, year, month, refreshCalendarToken, clearCalendarToken]);
+        if (!res.ok) {
+          if (res.status === 401 && !_isRetry) {
+            // Token expirado → pedir uno nuevo a Divoon y reintentar UNA vez
+            const newToken = await refreshCalendarToken();
+            if (newToken) {
+              await fetchEvents(newToken, true);
+            } else {
+              // Divoon tampoco pudo renovar → el usuario debe iniciar sesión de nuevo
+              clearCalendarToken();
+              dispatch({
+                type: 'ERROR',
+                message: 'Sesión de calendario expirada — vuelve a iniciar sesión.',
+              });
+            }
+          } else {
+            dispatch({ type: 'ERROR', message: `Error ${res.status} al cargar eventos.` });
+          }
+          return;
+        }
+
+        const json = await res.json();
+        dispatch({ type: 'SET_EVENTS', events: json.items || [] });
+      } catch {
+        dispatch({ type: 'ERROR', message: 'No se pudo cargar el calendario.' });
+      }
+    },
+    [accessToken, year, month, refreshCalendarToken, clearCalendarToken]
+  );
 
   useEffect(() => {
     fetchEvents();
