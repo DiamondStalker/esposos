@@ -23,6 +23,11 @@ const REDIRECT_URI =
 // el refresh token nunca sale del servidor (Divoon).
 const STORAGE_KEY = 'cal_token';
 
+// Valida que el valor sea un string no vacío antes de persistirlo
+function isValidToken(value) {
+  return typeof value === 'string' && value.length > 0;
+}
+
 function readToken() {
   try {
     return localStorage.getItem(STORAGE_KEY) || null;
@@ -32,7 +37,11 @@ function readToken() {
 }
 function saveToken(token) {
   try {
-    token ? localStorage.setItem(STORAGE_KEY, token) : localStorage.removeItem(STORAGE_KEY);
+    if (token === null || token === undefined) {
+      localStorage.removeItem(STORAGE_KEY);
+    } else if (isValidToken(token)) {
+      localStorage.setItem(STORAGE_KEY, token);
+    }
   } catch {}
 }
 
@@ -166,7 +175,9 @@ export function AuthProvider({ children }) {
 
       if (!res.ok) throw new Error(`Divoon exchange: ${res.status}`);
 
-      const { accessToken } = await res.json();
+      const data = await res.json();
+      const accessToken = isValidToken(data.accessToken) ? data.accessToken : null;
+      if (!accessToken) throw new Error('Token inválido recibido de Divoon');
       saveToken(accessToken);
       dispatch({ type: 'SET_TOKEN', accessToken });
       return accessToken;
@@ -192,7 +203,9 @@ export function AuthProvider({ children }) {
 
       if (!res.ok) return null;
 
-      const { accessToken } = await res.json();
+      const data = await res.json();
+      const accessToken = isValidToken(data.accessToken) ? data.accessToken : null;
+      if (!accessToken) return null;
       saveToken(accessToken);
       dispatch({ type: 'SET_TOKEN', accessToken });
       return accessToken;
@@ -221,10 +234,15 @@ export function AuthProvider({ children }) {
         });
         if (cancelled) return;
         if (res.ok) {
-          const { accessToken } = await res.json();
+          const data = await res.json();
           if (cancelled) return;
-          saveToken(accessToken);
-          dispatch({ type: 'SET_TOKEN', accessToken });
+          const accessToken = isValidToken(data.accessToken) ? data.accessToken : null;
+          if (accessToken) {
+            saveToken(accessToken);
+            dispatch({ type: 'SET_TOKEN', accessToken });
+          } else {
+            dispatch({ type: 'CALENDAR_CHECKED' });
+          }
         } else {
           dispatch({ type: 'CALENDAR_CHECKED' });
         }
