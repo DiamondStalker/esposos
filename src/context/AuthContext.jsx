@@ -135,20 +135,21 @@ function useSilentCalendarAuth({ user, accessToken, calendarChecked, dispatch })
 
     const controller = new AbortController();
 
-    fetchSilentCalendarToken(user, controller.signal)
-      .then((token) => {
+    (async () => {
+      try {
+        const token = await fetchSilentCalendarToken(user, controller.signal);
         if (token) {
           saveToken(token);
           dispatch({ type: 'SET_TOKEN', accessToken: token });
         } else {
           dispatch({ type: 'CALENDAR_CHECKED' });
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         if (err.name !== 'AbortError') {
           dispatch({ type: 'CALENDAR_CHECKED' });
         }
-      });
+      }
+    })();
 
     return () => controller.abort();
   }, [user, accessToken, calendarChecked, dispatch]);

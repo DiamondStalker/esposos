@@ -2,6 +2,7 @@ import React, { useReducer, useRef } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import styles from './SubirFoto.module.css';
+import DialogModal from './DialogModal';
 
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`;
 const UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
@@ -82,6 +83,7 @@ export default function SubirFoto() {
       formData.append('folder', 'mesesaurios');
 
       const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+      if (!res.ok) throw new Error(`Error al subir la imagen a Cloudinary (${res.status})`);
       const data = await res.json();
 
       if (!data.secure_url) throw new Error('Error al subir la imagen a Cloudinary');
@@ -112,19 +114,12 @@ export default function SubirFoto() {
       </button>
 
       {open && (
-        /* Overlay como button para accesibilidad */
-        <div
+        <DialogModal
+          ariaLabel="Subir foto"
+          onClose={() => dispatch({ type: 'TOGGLE' })}
+          closeOnBackdropClick
           className={styles.overlayWrapper}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Subir foto"
         >
-          <button
-            className={styles.overlay}
-            onClick={() => dispatch({ type: 'TOGGLE' })}
-            aria-label="Cerrar modal"
-            type="button"
-          />
           <div className={styles.modal}>
             <button
               className={styles.close}
@@ -153,11 +148,14 @@ export default function SubirFoto() {
               accept="image/*"
               onChange={handleFile}
               className={styles.fileInput}
+              aria-label="Seleccionar imagen desde el dispositivo"
+              tabIndex={-1}
             />
 
             <textarea
               className={styles.textarea}
               placeholder="Escribe una descripción..."
+              aria-label="Descripción de la foto"
               value={descripcion}
               onChange={(e) => dispatch({ type: 'SET_DESCRIPCION', value: e.target.value })}
               rows={3}
@@ -167,6 +165,7 @@ export default function SubirFoto() {
               <label className={`${styles.tagOption} ${tag === 'post' ? styles.tagActive : ''}`}>
                 <input
                   type="radio"
+                  name="tag"
                   value="post"
                   checked={tag === 'post'}
                   onChange={() => dispatch({ type: 'SET_TAG', value: 'post' })}
@@ -178,6 +177,7 @@ export default function SubirFoto() {
               >
                 <input
                   type="radio"
+                  name="tag"
                   value="principal"
                   checked={tag === 'principal'}
                   onChange={() => dispatch({ type: 'SET_TAG', value: 'principal' })}
@@ -192,7 +192,7 @@ export default function SubirFoto() {
               {uploading ? 'Subiendo...' : 'Subir foto ❤️'}
             </button>
           </div>
-        </div>
+        </DialogModal>
       )}
     </>
   );

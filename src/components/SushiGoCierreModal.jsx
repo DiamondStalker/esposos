@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useCallback } from 'react';
 import styles from './SushiGoCierreModal.module.css';
+import DialogModal from './DialogModal';
 
 const DIVOON_URL = process.env.REACT_APP_DIVOON_URL;
 
@@ -50,6 +51,10 @@ export default function SushiGoCierreModal({ onClose }) {
 
       // 409 u otro error — obtener estado actual como fallback
       const currentRes = await fetch(`${DIVOON_URL}/games/sushigo/current`);
+      if (!currentRes.ok) {
+        dispatch({ type: 'ERROR', message: 'No se pudo obtener el resultado.' });
+        return;
+      }
       const current = await currentRes.json();
       if (current.success) {
         dispatch({ type: 'SET_RECORD', record: current.data });
@@ -77,9 +82,13 @@ export default function SushiGoCierreModal({ onClose }) {
   const winnerInfo = record ? getWinnerInfo(record) : null;
 
   return (
-    <>
-      <div className={styles.overlay} onClick={onClose} />
-      <div className={styles.modal} role="dialog" aria-modal="true">
+    <DialogModal
+      ariaLabel="Cierre del mes de SushiGo"
+      onClose={onClose}
+      closeOnBackdropClick
+      className={styles.modal}
+    >
+      <div className={styles.modalCard}>
         {loading && (
           <div className={styles.loadingState}>
             <p className={styles.loadingText}>Calculando el ganador del mes... 🍣</p>
@@ -137,6 +146,6 @@ export default function SushiGoCierreModal({ onClose }) {
           </>
         )}
       </div>
-    </>
+    </DialogModal>
   );
 }

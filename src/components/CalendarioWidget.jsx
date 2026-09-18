@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useReducer, useCallback, useMemo } from 'react';
 import styles from './CalendarioWidget.module.css';
 import CalendarioModal from './CalendarioModal';
+import DialogModal from './DialogModal';
 import { useAuth } from '../context/AuthContext';
 
 // Autora: Camamore
@@ -33,26 +34,6 @@ function getEventDay(event) {
   const dateStr = event.start?.date || event.start?.dateTime?.slice(0, 10);
   if (!dateStr) return null;
   return parseInt(dateStr.split('-')[2], 10);
-}
-
-// Wrapper reutilizable que usa <dialog> nativo con showModal()
-function DialogModal({ titleId, onClose, className, children }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.showModal();
-    const handleClose = () => onClose();
-    el.addEventListener('close', handleClose);
-    return () => el.removeEventListener('close', handleClose);
-  }, [onClose]);
-
-  return (
-    <dialog ref={ref} className={className} aria-labelledby={titleId}>
-      {children}
-    </dialog>
-  );
 }
 
 function calReducer(state, action) {
@@ -264,8 +245,8 @@ export default function CalendarioWidget() {
           {Object.entries(eventsByDay)
             .sort((a, b) => Number(a[0]) - Number(b[0]))
             .map(([day, evts]) =>
-              evts.map((ev, i) => (
-                <li key={`${day}-${i}`} className={styles.eventItem}>
+              evts.map((ev) => (
+                <li key={ev.id} className={styles.eventItem}>
                   <span className={styles.eventDay}>{day}</span>
                   <span className={styles.eventTitle}>{ev.summary}</span>
                 </li>
