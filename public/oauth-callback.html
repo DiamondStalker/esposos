@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Autorizando calendario…</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #ffe4e1;
+      font-family: sans-serif;
+      color: #c0396b;
+    }
+  </style>
+</head>
+<body>
+  <p>Conectando calendario… 🗓️</p>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code  = params.get('code');
+    const error = params.get('error');
+
+    if (window.opener) {
+      window.opener.postMessage(
+        { type: 'CALENDAR_OAUTH', code, error },
+        window.location.origin
+      );
+      window.close();
+    }
+  </script>
+</body>
+</html>

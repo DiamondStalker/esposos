@@ -74,7 +74,7 @@ function MainApp() {
     view,
   } = state;
 
-  const { user, logout } = useAuth();
+  const { user, logout, needsCalendarAuth, connectCalendar } = useAuth();
   const intervalRef = useRef(null);
   const controllerRef = useRef(null);
   const userAcceptedRef = useRef(false);
@@ -211,6 +211,34 @@ function MainApp() {
       {/* ── Navegación gooey (siempre visible) ── */}
       <GooeyNav activeView={view} onNavigate={(v) => dispatch({ type: 'SET_VIEW', view: v })} />
 
+      {/* ── Overlay de conexión de Calendar (una sola vez) ── */}
+      {needsCalendarAuth && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(255,228,225,0.92)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'Miss Fajardose, cursive',
+        }}>
+          <p style={{ fontSize: '2.2rem', color: '#c0396b', margin: '0 0 0.5rem' }}>🗓️ Conectar calendario</p>
+          <p style={{ fontSize: '1rem', color: '#a0395b', marginBottom: '1.5rem', fontFamily: 'sans-serif' }}>
+            Solo esta vez — después funciona automático.
+          </p>
+          <button
+            onClick={connectCalendar}
+            style={{
+              background: '#c0396b', color: '#fff', border: 'none',
+              borderRadius: '2rem', padding: '0.75rem 2.5rem',
+              fontSize: '1.1rem', cursor: 'pointer',
+              fontFamily: 'Miss Fajardose, cursive',
+            }}
+          >
+            Conectar ♥
+          </button>
+        </div>
+      )}
+
       {/* ── Overlays globales (siempre) ── */}
       <Celebracion activa={celebracionActiva} />
 
@@ -322,6 +350,22 @@ function MainApp() {
 
 function App() {
   const { user, loading } = useAuth();
+
+  // ── OAuth callback handler ─────────────────────────────────────────────
+  // Si la app carga en el popup del callback (window.opener existe y hay ?code),
+  // envía el código al padre via postMessage y cierra el popup.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code  = params.get('code');
+    const error = params.get('error');
+    if ((code || error) && window.opener) {
+      window.opener.postMessage(
+        { type: 'CALENDAR_OAUTH', code, error },
+        window.location.origin,
+      );
+      window.close();
+    }
+  }, []);
 
   if (loading) {
     return (

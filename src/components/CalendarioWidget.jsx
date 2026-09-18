@@ -96,7 +96,7 @@ const CalendarIcon = () => (
 );
 
 export default function CalendarioWidget() {
-  const { accessToken } = useAuth();
+  const { accessToken, clearCalendarToken, refreshCalendarToken } = useAuth();
 
   const [state, dispatch] = useReducer(calReducer, {
     loading: false,
@@ -111,8 +111,8 @@ export default function CalendarioWidget() {
   const year = today.getFullYear();
   const month = today.getMonth();
 
-  const fetchEvents = useCallback(async () => {
-    if (!accessToken) return;
+  const fetchEvents = useCallback(async (_token = accessToken, _isRetry = false) => {
+    if (!_token) return;
     dispatch({ type: 'LOADING' });
 
     const timeMin = new Date(year, month, 1).toISOString();
@@ -126,24 +126,35 @@ export default function CalendarioWidget() {
 
     try {
       const res = await fetch(`${CALENDAR_BASE}/events?${params}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${_token}` },
       });
+
       if (!res.ok) {
-        dispatch({
-          type: 'ERROR',
-          message:
-            res.status === 401
-              ? 'Sesión de calendario expirada — vuelve a iniciar sesión.'
-              : `Error ${res.status} al cargar eventos.`,
-        });
+        if (res.status === 401 && !_isRetry) {
+          // Token expirado → pedir uno nuevo a Divoon y reintentar UNA vez
+          const newToken = await refreshCalendarToken();
+          if (newToken) {
+            await fetchEvents(newToken, true);
+          } else {
+            // Divoon tampoco pudo renovar → el usuario debe iniciar sesión de nuevo
+            clearCalendarToken();
+            dispatch({
+              type: 'ERROR',
+              message: 'Sesión de calendario expirada — vuelve a iniciar sesión.',
+            });
+          }
+        } else {
+          dispatch({ type: 'ERROR', message: `Error ${res.status} al cargar eventos.` });
+        }
         return;
       }
+
       const json = await res.json();
       dispatch({ type: 'SET_EVENTS', events: json.items || [] });
     } catch {
       dispatch({ type: 'ERROR', message: 'No se pudo cargar el calendario.' });
     }
-  }, [accessToken, year, month]);
+  }, [accessToken, year, month, refreshCalendarToken, clearCalendarToken]);
 
   useEffect(() => {
     fetchEvents();
@@ -175,7 +186,6 @@ export default function CalendarioWidget() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
 
-  // Memoizado para no recrear el objeto en cada render
   const eventsByDay = useMemo(() => {
     const map = {};
     events.forEach((event) => {
@@ -195,7 +205,6 @@ export default function CalendarioWidget() {
     (day) => {
       if (!accessToken) return;
       const date = new Date(year, month, day);
-      // Se calcula dentro del callback para no depender de eventsByDay (derivado)
       const dayEvents = events.filter((e) => getEventDay(e) === day);
       if (dayEvents.length > 0) {
         dispatch({ type: 'OPEN_MODAL', modal: { mode: 'view', date, day, eventos: dayEvents } });
@@ -246,7 +255,6 @@ export default function CalendarioWidget() {
 
       {loading && <p className={styles.calStatus}>Cargando eventos...</p>}
       {error && <p className={styles.calStatus}>{error}</p>}
-      {!accessToken && <p className={styles.calStatus}>Inicia sesión para gestionar eventos.</p>}
 
       {!loading && !error && Object.keys(eventsByDay).length > 0 && (
         <ul className={styles.eventList}>
