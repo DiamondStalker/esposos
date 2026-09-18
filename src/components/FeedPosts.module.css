@@ -97,31 +97,26 @@
   padding: 40px 20px;
 }
 
-/* ── Modal wrapper ── */
+/* ── Modal wrapper (elemento <dialog> — contenedor transparente que centra el contenido) ── */
 .modalOverlayWrapper {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 2000;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
 }
 
-/* ── Overlay fondo como button ── */
-.modalOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.modalOverlayWrapper::backdrop {
   background-color: rgba(0, 0, 0, 0.85);
-  border: none;
-  cursor: pointer;
-  padding: 0;
 }
 
 /* ── Flechas fuera del modal ── */

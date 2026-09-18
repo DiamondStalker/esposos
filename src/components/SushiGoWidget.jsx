@@ -31,6 +31,10 @@ export default function SushiGoWidget() {
     dispatch({ type: 'LOADING' });
     try {
       const res = await fetch(`${DIVOON_URL}/games/sushigo/current`);
+      if (!res.ok) {
+        dispatch({ type: 'ERROR', message: 'No se pudo obtener el estado.' });
+        return;
+      }
       const json = await res.json();
       if (json.success) {
         dispatch({ type: 'SET_CURRENT', data: json.data });

@@ -1,26 +1,32 @@
-/* ── Overlay ── */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.75);
-  z-index: 1100;
-  cursor: pointer;
-}
-
-/* ── Modal ── */
+/* ── Modal (elemento <dialog> — contenedor transparente que centra la tarjeta) ── */
 .modal {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+/* ── Tarjeta visible del modal ── */
+.modalCard {
+  position: relative;
+  z-index: 1;
   background-color: white;
   border: 2px solid #f0c0cc;
   border-radius: 20px;
   padding: 32px 40px;
-  z-index: 1200;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   text-align: center;
   min-width: 320px;

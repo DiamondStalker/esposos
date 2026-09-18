@@ -52,7 +52,7 @@
   cursor: default;
 }
 
-/* Celdas interactivas (cuando hay accessToken) */
+/* Celdas siempre interactivas */
 .calCellBtn {
   background: none;
   border: none;
@@ -61,12 +61,8 @@
   transition: background 0.15s;
 }
 
-.calCellBtn:hover:not(:disabled) {
+.calCellBtn:hover {
   background-color: #ffe0ea;
-}
-
-.calCellBtn:disabled {
-  cursor: default;
 }
 
 .calToday {

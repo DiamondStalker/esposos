@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useReducer, useCallback, useMemo } from 'react';
 import styles from './CalendarioWidget.module.css';
 import CalendarioModal from './CalendarioModal';
+import DialogModal from './DialogModal';
 import { useAuth } from '../context/AuthContext';
 
 // Autora: Camamore
@@ -33,26 +34,6 @@ function getEventDay(event) {
   const dateStr = event.start?.date || event.start?.dateTime?.slice(0, 10);
   if (!dateStr) return null;
   return parseInt(dateStr.split('-')[2], 10);
-}
-
-// Wrapper reutilizable que usa <dialog> nativo con showModal()
-function DialogModal({ titleId, onClose, className, children }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.showModal();
-    const handleClose = () => onClose();
-    el.addEventListener('close', handleClose);
-    return () => el.removeEventListener('close', handleClose);
-  }, [onClose]);
-
-  return (
-    <dialog ref={ref} className={className} aria-labelledby={titleId}>
-      {children}
-    </dialog>
-  );
 }
 
 function calReducer(state, action) {
@@ -96,7 +77,7 @@ const CalendarIcon = () => (
 );
 
 export default function CalendarioWidget() {
-  const { accessToken } = useAuth();
+  const { accessToken, clearCalendarToken, refreshCalendarToken } = useAuth();
 
   const [state, dispatch] = useReducer(calReducer, {
     loading: false,
@@ -111,39 +92,53 @@ export default function CalendarioWidget() {
   const year = today.getFullYear();
   const month = today.getMonth();
 
-  const fetchEvents = useCallback(async () => {
-    if (!accessToken) return;
-    dispatch({ type: 'LOADING' });
+  const fetchEvents = useCallback(
+    async (_token = accessToken, _isRetry = false) => {
+      if (!_token) return;
+      dispatch({ type: 'LOADING' });
 
-    const timeMin = new Date(year, month, 1).toISOString();
-    const timeMax = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
-    const params = new URLSearchParams({
-      timeMin,
-      timeMax,
-      singleEvents: 'true',
-      orderBy: 'startTime',
-    });
-
-    try {
-      const res = await fetch(`${CALENDAR_BASE}/events?${params}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+      const timeMin = new Date(year, month, 1).toISOString();
+      const timeMax = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+      const params = new URLSearchParams({
+        timeMin,
+        timeMax,
+        singleEvents: 'true',
+        orderBy: 'startTime',
       });
-      if (!res.ok) {
-        dispatch({
-          type: 'ERROR',
-          message:
-            res.status === 401
-              ? 'Sesión de calendario expirada — vuelve a iniciar sesión.'
-              : `Error ${res.status} al cargar eventos.`,
+
+      try {
+        const res = await fetch(`${CALENDAR_BASE}/events?${params}`, {
+          headers: { Authorization: `Bearer ${_token}` },
         });
-        return;
+
+        if (!res.ok) {
+          if (res.status === 401 && !_isRetry) {
+            // Token expirado → pedir uno nuevo a Divoon y reintentar UNA vez
+            const newToken = await refreshCalendarToken();
+            if (newToken) {
+              await fetchEvents(newToken, true);
+            } else {
+              // Divoon tampoco pudo renovar → el usuario debe iniciar sesión de nuevo
+              clearCalendarToken();
+              dispatch({
+                type: 'ERROR',
+                message: 'Sesión de calendario expirada — vuelve a iniciar sesión.',
+              });
+            }
+          } else {
+            dispatch({ type: 'ERROR', message: `Error ${res.status} al cargar eventos.` });
+          }
+          return;
+        }
+
+        const json = await res.json();
+        dispatch({ type: 'SET_EVENTS', events: json.items || [] });
+      } catch {
+        dispatch({ type: 'ERROR', message: 'No se pudo cargar el calendario.' });
       }
-      const json = await res.json();
-      dispatch({ type: 'SET_EVENTS', events: json.items || [] });
-    } catch {
-      dispatch({ type: 'ERROR', message: 'No se pudo cargar el calendario.' });
-    }
-  }, [accessToken, year, month]);
+    },
+    [accessToken, year, month, refreshCalendarToken, clearCalendarToken]
+  );
 
   useEffect(() => {
     fetchEvents();
@@ -175,7 +170,6 @@ export default function CalendarioWidget() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
 
-  // Memoizado para no recrear el objeto en cada render
   const eventsByDay = useMemo(() => {
     const map = {};
     events.forEach((event) => {
@@ -195,7 +189,6 @@ export default function CalendarioWidget() {
     (day) => {
       if (!accessToken) return;
       const date = new Date(year, month, day);
-      // Se calcula dentro del callback para no depender de eventsByDay (derivado)
       const dayEvents = events.filter((e) => getEventDay(e) === day);
       if (dayEvents.length > 0) {
         dispatch({ type: 'OPEN_MODAL', modal: { mode: 'view', date, day, eventos: dayEvents } });
@@ -246,15 +239,14 @@ export default function CalendarioWidget() {
 
       {loading && <p className={styles.calStatus}>Cargando eventos...</p>}
       {error && <p className={styles.calStatus}>{error}</p>}
-      {!accessToken && <p className={styles.calStatus}>Inicia sesión para gestionar eventos.</p>}
 
       {!loading && !error && Object.keys(eventsByDay).length > 0 && (
         <ul className={styles.eventList}>
           {Object.entries(eventsByDay)
             .sort((a, b) => Number(a[0]) - Number(b[0]))
             .map(([day, evts]) =>
-              evts.map((ev, i) => (
-                <li key={`${day}-${i}`} className={styles.eventItem}>
+              evts.map((ev) => (
+                <li key={ev.id} className={styles.eventItem}>
                   <span className={styles.eventDay}>{day}</span>
                   <span className={styles.eventTitle}>{ev.summary}</span>
                 </li>

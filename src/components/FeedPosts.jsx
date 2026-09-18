@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useCallback } from 'react';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import styles from './FeedPosts.module.css';
+import DialogModal from './DialogModal';
 
 function feedReducer(state, action) {
   switch (action.type) {
@@ -94,19 +95,12 @@ export default function FeedPosts() {
       )}
 
       {selectedPost && (
-        <div
+        <DialogModal
+          ariaLabel="Foto ampliada"
+          onClose={() => dispatch({ type: 'CLOSE' })}
+          closeOnBackdropClick
           className={styles.modalOverlayWrapper}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Foto ampliada"
         >
-          <button
-            className={styles.modalOverlay}
-            onClick={() => dispatch({ type: 'CLOSE' })}
-            aria-label="Cerrar foto"
-            type="button"
-          />
-
           {posts.length > 1 && (
             <button className={styles.modalPrev} onClick={handlePrev} aria-label="Foto anterior">
               &lt;
@@ -141,7 +135,7 @@ export default function FeedPosts() {
               &gt;
             </button>
           )}
-        </div>
+        </DialogModal>
       )}
     </div>
   );
