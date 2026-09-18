@@ -18,31 +18,26 @@ const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const REDIRECT_URI =
   process.env.REACT_APP_GOOGLE_REDIRECT_URI || `${window.location.origin}/oauth-callback.html`;
 
-// ── localStorage para el access token de Calendar ───────────────────────────
-// Trade-off aceptado: token de corta vida (~1h), app personal/privada,
-// el refresh token nunca sale del servidor (Divoon). NOSONAR intencional.
-const STORAGE_KEY = 'cal_token';
+// ── Token en memoria de módulo ────────────────────────────────────────────────
+// El access token de Calendar (~1h) vive en memoria de módulo, no en Web
+// Storage. Al recargar la página, el flujo de silent auth lo recupera de
+// Divoon sin necesidad de persistencia local.
+let _memToken = null;
 
-// Valida que el valor sea un string no vacío antes de persistirlo
 function isValidToken(value) {
   return typeof value === 'string' && value.length > 0;
 }
 
 function readToken() {
-  try {
-    return localStorage.getItem(STORAGE_KEY) || null; // NOSONAR
-  } catch {
-    return null;
-  }
+  return _memToken;
 }
+
 function saveToken(token) {
-  try {
-    if (token === null || token === undefined) {
-      localStorage.removeItem(STORAGE_KEY); // NOSONAR
-    } else if (isValidToken(token)) {
-      localStorage.setItem(STORAGE_KEY, token); // NOSONAR
-    }
-  } catch {}
+  if (token === null || token === undefined) {
+    _memToken = null;
+  } else if (isValidToken(token)) {
+    _memToken = token;
+  }
 }
 
 // ── Reducer ──────────────────────────────────────────────────────────────────
@@ -117,6 +112,48 @@ function openCalendarOAuthPopup() {
   });
 }
 
+// ── Fetch de token silencioso (fuera del efecto, con AbortSignal) ─────────────
+async function fetchSilentCalendarToken(user, signal) {
+  const idToken = await user.getIdToken();
+  const res = await fetch(`${DIVOON_URL}/auth/calendar/token`, {
+    headers: { Authorization: `Bearer ${idToken}` },
+    signal,
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return isValidToken(data.accessToken) ? data.accessToken : null;
+}
+
+// ── Custom hook: silent calendar auth ─────────────────────────────────────────
+function useSilentCalendarAuth({ user, accessToken, calendarChecked, dispatch }) {
+  useEffect(() => {
+    if (!user || accessToken || calendarChecked) return;
+    if (!DIVOON_URL) {
+      dispatch({ type: 'CALENDAR_CHECKED' });
+      return;
+    }
+
+    const controller = new AbortController();
+
+    fetchSilentCalendarToken(user, controller.signal)
+      .then((token) => {
+        if (token) {
+          saveToken(token);
+          dispatch({ type: 'SET_TOKEN', accessToken: token });
+        } else {
+          dispatch({ type: 'CALENDAR_CHECKED' });
+        }
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          dispatch({ type: 'CALENDAR_CHECKED' });
+        }
+      });
+
+    return () => controller.abort();
+  }, [user, accessToken, calendarChecked, dispatch]);
+}
+
 // ── Provider ──────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, {
@@ -124,7 +161,7 @@ export function AuthProvider({ children }) {
     loading: true,
     accessDenied: false,
     accessToken: readToken(),
-    calendarChecked: !!readToken(),
+    calendarChecked: false,
   });
 
   const userRef = useRef(state.user);
@@ -215,47 +252,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   // ── Silent calendar auth ──────────────────────────────────────────────────
-  // Intenta obtener access token desde Divoon sin popup.
-  // Si Divoon responde 404 (primera vez), muestra el overlay.
-  useEffect(() => {
-    if (!state.user || state.accessToken || state.calendarChecked) return;
-    if (!DIVOON_URL) {
-      dispatch({ type: 'CALENDAR_CHECKED' });
-      return;
-    }
-
-    let cancelled = false;
-
-    const run = async () => {
-      try {
-        const idToken = await state.user.getIdToken();
-        const res = await fetch(`${DIVOON_URL}/auth/calendar/token`, {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        if (cancelled) return;
-        if (res.ok) {
-          const data = await res.json();
-          if (cancelled) return;
-          const accessToken = isValidToken(data.accessToken) ? data.accessToken : null;
-          if (accessToken) {
-            saveToken(accessToken);
-            dispatch({ type: 'SET_TOKEN', accessToken });
-          } else {
-            dispatch({ type: 'CALENDAR_CHECKED' });
-          }
-        } else {
-          dispatch({ type: 'CALENDAR_CHECKED' });
-        }
-      } catch {
-        if (!cancelled) dispatch({ type: 'CALENDAR_CHECKED' });
-      }
-    };
-
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [state.user, state.accessToken, state.calendarChecked]); // eslint-disable-line react-hooks/exhaustive-deps
+  useSilentCalendarAuth({
+    user: state.user,
+    accessToken: state.accessToken,
+    calendarChecked: state.calendarChecked,
+    dispatch,
+  });
 
   const needsCalendarAuth = !!state.user && !state.accessToken && state.calendarChecked;
 
