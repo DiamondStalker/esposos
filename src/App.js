@@ -53,7 +53,7 @@ function MainApp() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { showPopup, celebracionActiva, showSushiModal, view, poemaDelDia } = state;
 
-  const { user, logout, needsCalendarAuth, connectCalendar } = useAuth();
+  const { user, logout, needsCalendarAuth, connectCalendar, calendarAuthError } = useAuth();
   const { monthsTogether, daysUntilNext, esDia26, fraseDelDia } = useMonthsTogether();
   const spotify = useSpotifyEmbed();
   useHeartTrail();
@@ -79,7 +79,9 @@ function MainApp() {
       <GooeyNav activeView={view} onNavigate={(v) => dispatch({ type: 'SET_VIEW', view: v })} />
 
       {/* ── Overlay de conexión de Calendar (una sola vez) ── */}
-      {needsCalendarAuth && <CalendarAuthOverlay onConnect={connectCalendar} />}
+      {needsCalendarAuth && (
+        <CalendarAuthOverlay onConnect={connectCalendar} error={calendarAuthError} />
+      )}
 
       {/* ── Overlays globales (siempre) ── */}
       <Celebracion activa={celebracionActiva} />

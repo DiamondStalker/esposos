@@ -46,18 +46,43 @@ function authReducer(state, action) {
     case 'SET_USER':
       return { ...state, user: action.user, loading: false, accessDenied: false };
     case 'SET_TOKEN':
-      return { ...state, accessToken: action.accessToken, calendarChecked: true };
+      return {
+        ...state,
+        accessToken: action.accessToken,
+        calendarChecked: true,
+        calendarAuthError: null,
+      };
     case 'CLEAR_TOKEN':
       return { ...state, accessToken: null };
     case 'CALENDAR_CHECKED':
       return { ...state, calendarChecked: true };
+    case 'CALENDAR_AUTH_ERROR':
+      return { ...state, calendarAuthError: action.message };
     case 'ACCESS_DENIED':
       return { ...state, user: null, loading: false, accessDenied: true };
     case 'SIGNED_OUT':
-      return { ...state, user: null, loading: false, accessToken: null, calendarChecked: false };
+      return {
+        ...state,
+        user: null,
+        loading: false,
+        accessToken: null,
+        calendarChecked: false,
+        calendarAuthError: null,
+      };
     default:
       return state;
   }
+}
+
+// ── Mensajes de error legibles para el overlay de conexión ────────────────────
+function calendarAuthErrorMessage(err) {
+  if (err?.message === 'El navegador bloqueó el popup') {
+    return 'El navegador bloqueó la ventana de Google. Habilitá los popups para este sitio e intentá de nuevo.';
+  }
+  if (err?.message === 'Tiempo de espera agotado') {
+    return 'Se agotó el tiempo de espera antes de completar la conexión. Intentá de nuevo.';
+  }
+  return 'No se pudo conectar el calendario. Intentá de nuevo.';
 }
 
 // ── Whitelist ─────────────────────────────────────────────────────────────────
@@ -163,6 +188,7 @@ export function AuthProvider({ children }) {
     accessDenied: false,
     accessToken: readToken(),
     calendarChecked: false,
+    calendarAuthError: null,
   });
 
   const userRef = useRef(state.user);
@@ -219,7 +245,8 @@ export function AuthProvider({ children }) {
       saveToken(accessToken);
       dispatch({ type: 'SET_TOKEN', accessToken });
       return accessToken;
-    } catch {
+    } catch (err) {
+      dispatch({ type: 'CALENDAR_AUTH_ERROR', message: calendarAuthErrorMessage(err) });
       return null;
     }
   }, []);
@@ -294,6 +321,7 @@ export function AuthProvider({ children }) {
   const connectCalendar = useCallback(async () => {
     const user = userRef.current;
     if (!user) return;
+    dispatch({ type: 'CALENDAR_AUTH_ERROR', message: null });
     await initCalendarAuthRef.current?.(user);
   }, []);
 
@@ -309,6 +337,7 @@ export function AuthProvider({ children }) {
       clearCalendarToken,
       connectCalendar,
       needsCalendarAuth,
+      calendarAuthError: state.calendarAuthError,
       logout,
     }),
     [
@@ -316,6 +345,7 @@ export function AuthProvider({ children }) {
       state.loading,
       state.accessDenied,
       state.accessToken,
+      state.calendarAuthError,
       loginWithGoogle,
       initCalendarAuth,
       refreshCalendarToken,
