@@ -200,25 +200,25 @@
   background-color: #fff0f3;
 }
 
-/* ── Modal ver eventos del día ── */
-.viewOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.viewModal {
+/* ── <dialog> nativo para ver eventos del día ── */
+.viewDialog {
+  border: none;
+  padding: 24px 28px;
   background: #fff7f7;
   border-radius: 18px;
   box-shadow: 0 12px 40px rgba(192, 57, 107, 0.18);
-  padding: 24px 28px;
   width: 100%;
   max-width: 360px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.viewDialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .viewTitle {

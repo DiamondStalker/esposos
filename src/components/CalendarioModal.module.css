@@ -1,23 +1,23 @@
-/* ── Overlay ── */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-/* ── Tarjeta del modal ── */
-.modal {
+/* ── <dialog> nativo — reemplaza overlay+modal ── */
+.dialog {
+  border: none;
+  padding: 28px 32px;
   background: #fff7f7;
   border-radius: 18px;
   box-shadow: 0 12px 40px rgba(192, 57, 107, 0.18);
-  padding: 28px 32px;
   width: 100%;
   max-width: 400px;
+  /* Centrado garantizado en todos los browsers */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .modalTitle {

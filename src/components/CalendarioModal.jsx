@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback } from 'react';
+import React, { useReducer, useCallback, useRef, useEffect } from 'react';
 import styles from './CalendarioModal.module.css';
 
 // Autora: Camamore
@@ -35,13 +35,21 @@ function formReducer(state, action) {
 
 export default function CalendarioModal({ mode, date, evento, accessToken, onClose, onSuccess }) {
   const isCreate = mode === 'create';
+  const dialogRef = useRef(null);
 
-  // Detectar si el evento existente es todo el día o con hora
+  // Abrir como modal nativo al montar; cerrar con Escape llama a onClose
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return;
+    el.showModal();
+    const handleClose = () => onClose();
+    el.addEventListener('close', handleClose);
+    return () => el.removeEventListener('close', handleClose);
+  }, [onClose]);
+
   const eventoIsAllDay = evento ? !!evento.start?.date : true;
-  const eventoStartTime = evento?.start?.dateTime
-    ? evento.start.dateTime.slice(11, 16) // "HH:MM"
-    : '08:00';
-  const eventoEndTime = evento?.end?.dateTime ? evento.end.dateTime.slice(11, 16) : '09:00';
+  const eventoStartTime = evento?.start?.dateTime?.slice(11, 16) ?? '08:00';
+  const eventoEndTime = evento?.end?.dateTime?.slice(11, 16) ?? '09:00';
 
   const initialDate = evento
     ? evento.start?.date || evento.start?.dateTime?.slice(0, 10) || ''
@@ -121,118 +129,118 @@ export default function CalendarioModal({ mode, date, evento, accessToken, onClo
   );
 
   return (
-    <div className={styles.overlay} role="dialog" aria-modal="true">
-      <div className={styles.modal}>
-        <h3 className={styles.modalTitle}>{isCreate ? '🗓️ Nuevo evento' : '✏️ Editar evento'}</h3>
+    <dialog ref={dialogRef} className={styles.dialog} aria-labelledby="cal-modal-title">
+      <h3 className={styles.modalTitle} id="cal-modal-title">
+        {isCreate ? '🗓️ Nuevo evento' : '✏️ Editar evento'}
+      </h3>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {/* Título */}
-          <label className={styles.label} htmlFor="ev-title">
-            Título
-          </label>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {/* Título */}
+        <label className={styles.label} htmlFor="ev-title">
+          Título
+        </label>
+        <input
+          id="ev-title"
+          className={styles.input}
+          type="text"
+          value={form.title}
+          onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'title', value: e.target.value })}
+          placeholder="Ej: Aniversario mes 27"
+          required
+          autoFocus
+        />
+
+        {/* Fecha */}
+        <label className={styles.label} htmlFor="ev-date">
+          Fecha
+        </label>
+        <input
+          id="ev-date"
+          className={styles.input}
+          type="date"
+          value={form.date}
+          onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'date', value: e.target.value })}
+          required
+        />
+
+        {/* Toggle todo el día */}
+        <label className={styles.checkRow}>
           <input
-            id="ev-title"
-            className={styles.input}
-            type="text"
-            value={form.title}
-            onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'title', value: e.target.value })}
-            placeholder="Ej: Aniversario mes 27"
-            required
-            autoFocus
+            type="checkbox"
+            className={styles.checkbox}
+            checked={form.allDay}
+            onChange={() => dispatch({ type: 'TOGGLE_ALL_DAY' })}
           />
+          <span>Todo el día</span>
+        </label>
 
-          {/* Fecha */}
-          <label className={styles.label} htmlFor="ev-date">
-            Fecha
-          </label>
-          <input
-            id="ev-date"
-            className={styles.input}
-            type="date"
-            value={form.date}
-            onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'date', value: e.target.value })}
-            required
-          />
-
-          {/* Toggle todo el día */}
-          <label className={styles.checkRow}>
-            <input
-              type="checkbox"
-              className={styles.checkbox}
-              checked={form.allDay}
-              onChange={() => dispatch({ type: 'TOGGLE_ALL_DAY' })}
-            />
-            <span>Todo el día</span>
-          </label>
-
-          {/* Horas (solo si no es todo el día) */}
-          {!form.allDay && (
-            <div className={styles.timeRow}>
-              <div className={styles.timeField}>
-                <label className={styles.label} htmlFor="ev-start">
-                  Inicio
-                </label>
-                <input
-                  id="ev-start"
-                  className={styles.input}
-                  type="time"
-                  value={form.startTime}
-                  onChange={(e) =>
-                    dispatch({ type: 'SET_FIELD', field: 'startTime', value: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className={styles.timeField}>
-                <label className={styles.label} htmlFor="ev-end">
-                  Fin
-                </label>
-                <input
-                  id="ev-end"
-                  className={styles.input}
-                  type="time"
-                  value={form.endTime}
-                  onChange={(e) =>
-                    dispatch({ type: 'SET_FIELD', field: 'endTime', value: e.target.value })
-                  }
-                  required
-                />
-              </div>
+        {/* Horas */}
+        {!form.allDay && (
+          <div className={styles.timeRow}>
+            <div className={styles.timeField}>
+              <label className={styles.label} htmlFor="ev-start">
+                Inicio
+              </label>
+              <input
+                id="ev-start"
+                className={styles.input}
+                type="time"
+                value={form.startTime}
+                onChange={(e) =>
+                  dispatch({ type: 'SET_FIELD', field: 'startTime', value: e.target.value })
+                }
+                required
+              />
             </div>
-          )}
-
-          {/* Descripción */}
-          <label className={styles.label} htmlFor="ev-desc">
-            Descripción <span className={styles.optional}>(opcional)</span>
-          </label>
-          <textarea
-            id="ev-desc"
-            className={`${styles.input} ${styles.textarea}`}
-            value={form.description}
-            onChange={(e) =>
-              dispatch({ type: 'SET_FIELD', field: 'description', value: e.target.value })
-            }
-            placeholder="Detalles del evento..."
-            rows={3}
-          />
-
-          {form.error && <p className={styles.errorMsg}>{form.error}</p>}
-
-          <div className={styles.btnRow}>
-            <button
-              type="button"
-              className={styles.btnCancel}
-              onClick={onClose}
-              disabled={form.submitting}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className={styles.btnSubmit} disabled={form.submitting}>
-              {form.submitting ? '...' : isCreate ? 'Crear evento' : 'Guardar cambios'}
-            </button>
+            <div className={styles.timeField}>
+              <label className={styles.label} htmlFor="ev-end">
+                Fin
+              </label>
+              <input
+                id="ev-end"
+                className={styles.input}
+                type="time"
+                value={form.endTime}
+                onChange={(e) =>
+                  dispatch({ type: 'SET_FIELD', field: 'endTime', value: e.target.value })
+                }
+                required
+              />
+            </div>
           </div>
-        </form>
-      </div>
-    </div>
+        )}
+
+        {/* Descripción */}
+        <label className={styles.label} htmlFor="ev-desc">
+          Descripción <span className={styles.optional}>(opcional)</span>
+        </label>
+        <textarea
+          id="ev-desc"
+          className={`${styles.input} ${styles.textarea}`}
+          value={form.description}
+          onChange={(e) =>
+            dispatch({ type: 'SET_FIELD', field: 'description', value: e.target.value })
+          }
+          placeholder="Detalles del evento..."
+          rows={3}
+        />
+
+        {form.error && <p className={styles.errorMsg}>{form.error}</p>}
+
+        <div className={styles.btnRow}>
+          <button
+            type="button"
+            className={styles.btnCancel}
+            onClick={onClose}
+            disabled={form.submitting}
+          >
+            Cancelar
+          </button>
+          <button type="submit" className={styles.btnSubmit} disabled={form.submitting}>
+            {form.submitting ? '...' : isCreate ? 'Crear evento' : 'Guardar cambios'}
+          </button>
+        </div>
+      </form>
+    </dialog>
   );
 }

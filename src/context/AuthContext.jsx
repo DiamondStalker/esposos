@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../firebase';
@@ -31,8 +38,7 @@ export function AuthProvider({ children }) {
     user: null,
     loading: true,
     accessDenied: false,
-    // Recuperar el token guardado en sesión (sobrevive refresh de página)
-    accessToken: sessionStorage.getItem('gcal_token') || null,
+    accessToken: null, // en memoria — no persistido en storage (seguridad)
   });
 
   useEffect(() => {
@@ -58,45 +64,41 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = useCallback(async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      // Capturar el access token de Google para poder llamar Calendar API
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const accessToken = credential?.accessToken;
       if (accessToken) {
-        sessionStorage.setItem('gcal_token', accessToken);
         dispatch({ type: 'SET_TOKEN', accessToken });
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await signOut(auth);
-      sessionStorage.removeItem('gcal_token');
       dispatch({ type: 'SIGNED_OUT' });
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user: state.user,
-        loading: state.loading,
-        accessDenied: state.accessDenied,
-        accessToken: state.accessToken,
-        loginWithGoogle,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      user: state.user,
+      loading: state.loading,
+      accessDenied: state.accessDenied,
+      accessToken: state.accessToken,
+      loginWithGoogle,
+      logout,
+    }),
+    [state.user, state.loading, state.accessDenied, state.accessToken, loginWithGoogle, logout]
   );
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
