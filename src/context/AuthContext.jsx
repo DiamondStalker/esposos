@@ -74,6 +74,11 @@ function authReducer(state, action) {
   }
 }
 
+// ── Log de depuración del flujo de conexión de Calendar ────────────────────────
+function calendarLog(...args) {
+  console.log('[CalendarAuth]', ...args);
+}
+
 // ── Mensajes de error legibles para el overlay de conexión ────────────────────
 function calendarAuthErrorMessage(err) {
   if (err?.message === 'El navegador bloqueó el popup') {
@@ -94,8 +99,10 @@ async function checkWhitelist(currentUser) {
 
 // ── Popup de Google Calendar OAuth ───────────────────────────────────────────
 function openCalendarOAuthPopup() {
+  calendarLog('openCalendarOAuthPopup: CLIENT_ID =', CLIENT_ID, '| REDIRECT_URI =', REDIRECT_URI);
   return new Promise((resolve, reject) => {
     if (!CLIENT_ID) {
+      calendarLog('❌ falta CLIENT_ID, no se intenta abrir el popup');
       reject(new Error('REACT_APP_GOOGLE_CLIENT_ID no configurado'));
       return;
     }
@@ -116,13 +123,17 @@ function openCalendarOAuthPopup() {
     );
 
     if (!popup) {
+      calendarLog('❌ window.open devolvió null — el navegador bloqueó el popup');
       reject(new Error('El navegador bloqueó el popup'));
       return;
     }
 
+    calendarLog('✅ popup abierto, esperando el postMessage de vuelta...');
+
     const onMessage = (evt) => {
       if (evt.origin !== window.location.origin) return;
       if (evt.data?.type !== 'CALENDAR_OAUTH') return;
+      calendarLog('📩 postMessage recibido:', evt.data.error ? `error: ${evt.data.error}` : 'code OK');
       window.removeEventListener('message', onMessage);
       clearTimeout(timer);
       evt.data.error ? reject(new Error(evt.data.error)) : resolve(evt.data.code);
@@ -131,6 +142,7 @@ function openCalendarOAuthPopup() {
     window.addEventListener('message', onMessage);
 
     const timer = setTimeout(() => {
+      calendarLog('⏱️ timeout de 120s esperando el postMessage');
       window.removeEventListener('message', onMessage);
       reject(new Error('Tiempo de espera agotado'));
     }, 120_000);
@@ -144,6 +156,7 @@ async function fetchSilentCalendarToken(user, signal) {
     headers: { Authorization: `Bearer ${idToken}` },
     signal,
   });
+  calendarLog('fetchSilentCalendarToken: status =', res.status);
   if (!res.ok) return null;
   const data = await res.json();
   return isValidToken(data.accessToken) ? data.accessToken : null;
@@ -226,26 +239,44 @@ export function AuthProvider({ children }) {
 
   // ── initCalendarAuth ──────────────────────────────────────────────────────
   const initCalendarAuth = useCallback(async (user) => {
-    if (!DIVOON_URL || !CLIENT_ID) return null;
+    calendarLog('initCalendarAuth: arrancando, DIVOON_URL =', DIVOON_URL);
+    if (!DIVOON_URL) {
+      calendarLog('❌ falta DIVOON_URL, se corta acá');
+      return null;
+    }
+    if (!CLIENT_ID) {
+      calendarLog('❌ falta CLIENT_ID, se corta acá');
+      dispatch({
+        type: 'CALENDAR_AUTH_ERROR',
+        message: 'Falta configurar REACT_APP_GOOGLE_CLIENT_ID en este entorno.',
+      });
+      return null;
+    }
     try {
+      calendarLog('1) abriendo popup de Google...');
       const code = await openCalendarOAuthPopup();
+      calendarLog('2) popup devolvió un code, pidiendo idToken...');
       const idToken = await user.getIdToken();
 
+      calendarLog('3) llamando a Divoon /auth/calendar/exchange...');
       const res = await fetch(`${DIVOON_URL}/auth/calendar/exchange`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken, code, redirectUri: REDIRECT_URI }),
       });
+      calendarLog('4) respuesta de Divoon exchange, status =', res.status);
 
       if (!res.ok) throw new Error(`Divoon exchange: ${res.status}`);
 
       const data = await res.json();
       const accessToken = isValidToken(data.accessToken) ? data.accessToken : null;
       if (!accessToken) throw new Error('Token inválido recibido de Divoon');
+      calendarLog('✅ token recibido, guardando y listo');
       saveToken(accessToken);
       dispatch({ type: 'SET_TOKEN', accessToken });
       return accessToken;
     } catch (err) {
+      calendarLog('❌ initCalendarAuth falló:', err);
       dispatch({ type: 'CALENDAR_AUTH_ERROR', message: calendarAuthErrorMessage(err) });
       return null;
     }
@@ -321,8 +352,12 @@ export function AuthProvider({ children }) {
 
   // ── connectCalendar: llamado desde el overlay (tiene user gesture) ────────
   const connectCalendar = useCallback(async () => {
+    calendarLog('connectCalendar: clic detectado');
     const user = userRef.current;
-    if (!user) return;
+    if (!user) {
+      calendarLog('❌ no hay user, se corta acá');
+      return;
+    }
     dispatch({ type: 'CALENDAR_AUTH_ERROR', message: null });
     await initCalendarAuthRef.current?.(user);
   }, []);
