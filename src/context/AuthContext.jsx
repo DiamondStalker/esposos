@@ -295,17 +295,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   // ── loginWithGoogle ───────────────────────────────────────────────────────
+  // No dispara initCalendarAuth acá: para cuando signInWithPopup resuelve, el
+  // gesto de click original ya expiró (el round-trip de Google tarda más de lo
+  // que el navegador permite), así que el popup de Calendar siempre sería
+  // bloqueado. La conexión de Calendar se pide después, con un click real,
+  // desde el overlay (ver connectCalendar).
   const loginWithGoogle = useCallback(async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (!readToken()) {
-        await initCalendarAuth(result.user);
-      }
+      await signInWithPopup(auth, googleProvider);
       return true;
     } catch {
       return false;
     }
-  }, [initCalendarAuth]);
+  }, []);
 
   const logout = useCallback(async () => {
     try {
