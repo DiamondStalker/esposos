@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function CalendarAuthOverlay({ onConnect }) {
+export default function CalendarAuthOverlay({ onConnect, error }) {
   return (
     <div
       style={{
@@ -16,7 +16,15 @@ export default function CalendarAuthOverlay({ onConnect }) {
         fontFamily: 'Miss Fajardose, cursive',
       }}
     >
-      <p style={{ fontSize: '2.2rem', color: '#c0396b', margin: '0 0 0.5rem' }}>
+      <p
+        style={{
+          fontSize: 'clamp(1.8rem, 8vw, 2.2rem)',
+          color: '#c0396b',
+          margin: '0 0 0.5rem',
+          textAlign: 'center',
+          padding: '0 1rem',
+        }}
+      >
         🗓️ Conectar calendario
       </p>
       <p
@@ -25,6 +33,8 @@ export default function CalendarAuthOverlay({ onConnect }) {
           color: '#a0395b',
           marginBottom: '1.5rem',
           fontFamily: 'sans-serif',
+          textAlign: 'center',
+          padding: '0 1rem',
         }}
       >
         Solo esta vez — después funciona automático.
@@ -36,14 +46,34 @@ export default function CalendarAuthOverlay({ onConnect }) {
           color: '#fff',
           border: 'none',
           borderRadius: '2rem',
-          padding: '0.75rem 2.5rem',
-          fontSize: '1.1rem',
+          padding: '1rem 3rem',
+          minHeight: '56px',
+          fontSize: '1.4rem',
+          fontWeight: 'bold',
           cursor: 'pointer',
-          fontFamily: 'Miss Fajardose, cursive',
+          fontFamily: 'sans-serif',
+          boxShadow: '0 4px 16px rgba(192, 57, 107, 0.4)',
         }}
       >
-        Conectar ♥
+        {error ? 'Reintentar ♥' : 'Conectar ♥'}
       </button>
+
+      {error && (
+        <p
+          role="alert"
+          style={{
+            fontSize: '0.9rem',
+            color: '#b3001b',
+            marginTop: '1rem',
+            maxWidth: '320px',
+            textAlign: 'center',
+            fontFamily: 'sans-serif',
+            padding: '0 1rem',
+          }}
+        >
+          ⚠️ {error}
+        </p>
+      )}
     </div>
   );
 }
